@@ -16,6 +16,11 @@ def home_page():
 
 @home_blueprint.route('/sign_s3')
 def sign_s3():
+    """
+    Given a request, returns a presigned_post request to upload a file to AWS S3 
+    """
+
+
     S3_BUCKET = os.environ.get('S3_BUCKET')
 
     file_name = request.args.get('file_name')
@@ -23,6 +28,7 @@ def sign_s3():
 
     current_app.logger.info('Got filename: {} and filetype: {}'.format(file_name, file_type))
 
+    # Connect to client
     s3 = boto3.client('s3',
                       aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
                       aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY')
@@ -30,6 +36,7 @@ def sign_s3():
 
     current_app.logger.info('Established boto3 connection!')
 
+    # Get the presigned_post data to be used on the front-end
     presigned_post = s3.generate_presigned_post(
         Bucket=S3_BUCKET,
         Key=file_name,

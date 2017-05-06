@@ -4,6 +4,8 @@
 
 $(document).ready(function(){
 
+
+
     + function($) {
         'use strict';
 
@@ -13,10 +15,28 @@ $(document).ready(function(){
         var dropZone = document.getElementById('drop-zone');
         var uploadForm = document.getElementById('js-upload-form');
 
+        var updateProccessedFiles = function(file, url){
+            $('#processed-files').append(
+                '<a href="' + url +'" class="list-group-item list-group-item-success"><span class="badge alert-success pull-right">Success</span>' + file.name + '</a>'
+            )
+        };
+
         var uploadFile = function(file, s3Data, url){
-            // Given response from server, do the actual uploading of the file given the presigned data
+            // Given response from server, do the actual uploading of the file given the presigned dat
+            $('#progress-bar').attr('aria-valuenow', "5").css('width', '5%');
+
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', s3Data.url);
+
+            // Listener to update the progress bar.
+            xhr.upload.addEventListener("progress", function(evt){
+                if (evt.lengthComputable) {
+                    var percentComplete = parseInt( (evt.loaded / evt.total) * 100 );
+                    $('#progress-bar').attr('aria-valuenow', percentComplete).css('width', percentComplete + '%');
+                }
+            });
+
+            // Setup the rest of xhr to send the file
+            xhr.open('POST', s3Data.url, true);
 
             var postData = new FormData();
             for (var key in s3Data.fields){
@@ -29,7 +49,8 @@ $(document).ready(function(){
             xhr.onreadystatechange = function(){
                 if(xhr.readyState === 4) {
                     if (xhr.status === 200 || xhr.status === 204) {
-                        console.log('Uploaded to url: ' + url)
+                        console.log('Uploaded to url: ' + url);
+                        updateProccessedFiles(file, url);
                     }
                     else {
                         console.log('Could not upload the file!');
@@ -74,7 +95,6 @@ $(document).ready(function(){
         dropZone.ondrop = function(e) {
             e.preventDefault();
             this.className = 'upload-drop-zone';
-
             startUpload(e.dataTransfer.files)
         };
 
@@ -89,5 +109,7 @@ $(document).ready(function(){
         }
 
     }(jQuery);
+
+
 
 });
