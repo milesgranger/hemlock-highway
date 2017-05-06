@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  webapp_container:
+  webappservice:
     env_file:
       - environment.env
     build: .
@@ -10,5 +10,15 @@ services:
       - ./:/workdir
     ports:
       - "5555:5555"
+    links:
+      - dynamodbservice
+    restart: on-failure
     command:
       [python, app.py]
+
+  dynamodbservice:
+    image: peopleperhour/dynamodb
+    env_file:
+      - environment.env
+    ports:
+      - "8000:8000"

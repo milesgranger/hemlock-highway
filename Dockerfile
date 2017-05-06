@@ -10,7 +10,6 @@ RUN apt update \
 RUN echo "\ndaemon off;" >> /etc/nginx/nginx.conf
 RUN cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.original
 
-
 # Install python stuff
 RUN wget https://repo.continuum.io/miniconda/Miniconda3-4.2.12-Linux-x86_64.sh -O miniconda.sh
 RUN bash miniconda.sh -bf -p /anaconda
@@ -18,7 +17,8 @@ ENV PATH /anaconda/bin:$PATH
 RUN conda config --add channels numbda
 RUN conda config --add channels conda-forge
 RUN pip install --upgrade pip
-RUN pip install s3fs sqlalchemy psycopg2 boto3 flask bokeh uwsgi
+RUN pip install s3fs sqlalchemy psycopg2 boto3 flask bokeh uwsgi pynamodb
+RUN pip install redis
 
 WORKDIR /workdir
 
