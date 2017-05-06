@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  webapp_container:
+    env_file:
+      - environment.env
+    build: .
+    image: webapp:latest
+    volumes:
+      - ./:/workdir
+    ports:
+      - "5555:5555"
+    command:
+      [python, app.py]
