@@ -4,20 +4,23 @@
 
 $(document).ready(function(){
 
-
-
     + function($) {
         'use strict';
-
-        // UPLOAD CLASS DEFINITION
-        // ======================
 
         var dropZone = document.getElementById('drop-zone');
         var uploadForm = document.getElementById('js-upload-form');
 
-        var updateProccessedFiles = function(file, url){
+        var updateProccessedFiles = function (file, url, success) {
+            // Appends either a failure or success link to the file which was uploaded/failed
             $('#processed-files').append(
-                '<a href="' + url +'" class="list-group-item list-group-item-success"><span class="badge alert-success pull-right">Success</span>' + file.name + '</a>'
+                success ?
+                    '<a href="' + url + '" class="list-group-item list-group-item-success">' +
+                        '<span class="badge alert-success pull-right">Success</span>' + file.name + '<br/>Size (GB): ' + parseFloat(file.size / 1000000000).toFixed(10) +
+                    '</a>'
+                    :
+                    '<a href="#" class="list-group-item list-group-item-danger">' +
+                        '<span class="badge alert-danger pull-right">Failed</span>' + file.name +
+                    '</a>'
             )
         };
 
@@ -46,14 +49,15 @@ $(document).ready(function(){
             }
             postData.append('file', file);
 
+            // Update the list with success or failure of files.
             xhr.onreadystatechange = function(){
                 if(xhr.readyState === 4) {
                     if (xhr.status === 200 || xhr.status === 204) {
-                        console.log('Uploaded to url: ' + url);
-                        updateProccessedFiles(file, url);
+                        updateProccessedFiles(file, url, true);
                     }
                     else {
-                        console.log('Could not upload the file!');
+                        console.log('Could not upload the file! XHR Status: ' + xhr.status);
+                        updateProccessedFiles(file, url, false);
                     }
                 }
             };
@@ -107,9 +111,6 @@ $(document).ready(function(){
             this.className = 'upload-drop-zone';
             return false;
         }
-
     }(jQuery);
-
-
 
 });
