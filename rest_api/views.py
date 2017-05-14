@@ -1,4 +1,5 @@
 import boto3
+from botocore.client import Config
 import os
 import ast
 from flask import request, blueprints, current_app, jsonify
@@ -25,9 +26,12 @@ def sign_s3():
     # Connect to client
     if os.environ.get('AWS_ACCESS_KEY_ID'):
         s3 = boto3.client('s3',
+                          'eu-west-1',
+                          config=Config(s3={'addressing_style': 'path'}),
                           aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
                           aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY')
                           )
+        current_app.logger.info('Got env var credentials!')
     else:
         s3 = boto3.client('s3')
 
@@ -42,7 +46,7 @@ def sign_s3():
     presigned_post = s3.generate_presigned_post(
 
         Bucket=os.environ.get('S3_BUCKET'),
-        Key=file_name,
+        Key='milesg/{}'.format(file_name),
         Fields={'acl': 'public-read', 'Content-Type': file_type},
         Conditions=[
             {'acl': 'public-read'},
@@ -50,6 +54,8 @@ def sign_s3():
         ],
         ExpiresIn=expiresIn
     )
+
+    current_app.logger.info(presigned_post)
 
     return jsonify({'data': presigned_post,
                     'url': 'https://{}.s3.amazonaws.com/{}'.format(os.environ.get('S3_BUCKET'),
