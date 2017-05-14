@@ -13,6 +13,20 @@
                  style="width: 20%; margin-top: 10%;"
             >
 
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul>
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissable">
+                            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                            {% if category == 'success' %}Success!{% else %}Info!{% endif %}
+                            {{ message|safe }}
+                        </div>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+
             <h3>
                 Hello {{ user.name }}
             </h3>
@@ -24,6 +38,8 @@
     </div>
 
 
-
+    {% if form %}
+        {% include 'define_username_form.html' %}
+    {% endif %}
 
 {% endblock %}
