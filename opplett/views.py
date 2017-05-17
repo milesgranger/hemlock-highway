@@ -1,17 +1,13 @@
 
-from .models import User
+from .utils import get_user_via_oauth
+from .forms import UserNameForm
 from rest_api.dynamodb_models import UserModel
 
 from flask.blueprints import Blueprint
 from flask import render_template, redirect, url_for, current_app, request, flash
 from flask_dance.contrib.google import google
 
-from flask_wtf import FlaskForm
-from wtforms import StringField
-from wtforms.validators import DataRequired
 
-class UserNameForm(FlaskForm):
-    username = StringField('Username:', validators=[DataRequired(message='Required.')])
 
 
 opplett_blueprint = Blueprint(name='opplett_blueprint',
@@ -25,16 +21,32 @@ def home_page():
     return render_template('home_index.html')
 
 
-@opplett_blueprint.route('/create_username')
-def create_username():
+@opplett_blueprint.route('/user/<username_or_id>')
+def profile(username_or_id):
     """If first time user has signed in, create a username"""
-    proposed_username = request.args.get('username')
-    if next(UserModel.username_index.query(hash_key=proposed_username), None) is not None:
-        pass
+    # Ensure user is validated first.
+    try:
+        if not google.authorized:
+            return redirect(url_for('google.login'))
+        resp = google.get('/oauth2/v2/userinfo')
+    except:
+        return redirect(url_for('google.login'))
+
+    # Get google info about user
+    user = get_user_via_oauth()
+    dbuser = next(UserModel.query(hash_key=user.email), None)
+
+    if dbuser is not None:
+        if dbuser.username == username_or_id:
+            return render_template('profile.html', user=user)
+        else:
+            return 'We found you on google, but your username in the DB: {} does not match the one provided: {}'.format(dbuser.username, username_or_id)
+    else:
+        return 'Unable to locate you in the database. Here is the output from google: {}'.format(resp.json())
 
 
-@opplett_blueprint.route('/profile', methods=['GET', 'POST'])
-def profile():
+@opplett_blueprint.route('/login', methods=['GET', 'POST'])
+def login():
 
     # Ensure user is validated first.
     try:
@@ -44,27 +56,44 @@ def profile():
     except:
         return redirect(url_for('google.login'))
 
-    user = User(resp.json(), source='google')
+    # Get google info about user
+    user = get_user_via_oauth()
+    current_app.logger.info('Got Google Response: {}'.format(resp.text))
 
+    # Check if user exists in the database, if so, redirect to profile page without
+    # form to create username.
+    ddbuser = next(UserModel.query(hash_key=user.email), None)
+
+    if ddbuser is not None:
+        current_app.logger.info('User {} is found in database, redirecting to profile page.'.format(ddbuser.username))
+        return redirect(url_for('opplett_blueprint.profile', username_or_id=ddbuser.username))
+
+    # Form processing if first time user has signed in.
     form = UserNameForm()
     if form.validate_on_submit():
 
+        # Handle if username already exists.
         if next(UserModel.username_index.query(hash_key=form.username.data), None) is not None:
             flash('Sorry the username <strong>{}</strong> already exists, please try a different one.'
                   .format(form.username.data),
                   'info')
+            return redirect(url_for('opplett_blueprint.login'))
+        # Store new username and redirect to profile page.
         else:
             current_app.logger.info('Saving new username: {}'.format(form.username.data))
             new_user = UserModel(username=form.username.data, email=user.email)
             new_user.save()
             flash('Your username: <strong>{}</strong> is accepted!'.format(form.username.data), 'success')
-        current_app.logger.info('Got proposed username: {}'.format(form.username.data))
-        return redirect(url_for('opplett_blueprint.profile'))
+            current_app.logger.info('Processed proposed username: {}'.format(form.username.data))
+            return redirect(url_for('opplett_blueprint.profile', username_or_id=new_user.username))
 
-    current_app.logger.info('Got Google Response: {}'.format(resp.text))
+    # If we made it here, user does not exist and has not been presented a form for creating a username
+    return render_template('profile.html', user=user, form=form)
 
-    ddbuser = next(UserModel.query(hash_key=user.email), None)
 
-    return render_template('profile.html', user=user, form=form if ddbuser is None else None)
+
+
+
+
 
 

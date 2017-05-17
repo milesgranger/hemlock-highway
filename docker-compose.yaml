@@ -3,7 +3,7 @@ version: '3'
 services:
   webappservice:
     env_file:
-      - environment.env
+      - dev.env
     build: .
     image: webapp:latest
     volumes:
@@ -19,6 +19,6 @@ services:
   dynamodbservice:
     image: peopleperhour/dynamodb
     env_file:
-      - environment.env
+      - dev.env
     ports:
       - "8000:8000"
