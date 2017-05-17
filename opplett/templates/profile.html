@@ -3,43 +3,43 @@
 
 {% block content %}
 
+    {# Picture and user information so long as this isn't their first time logging in. #}
     <div class="row">
-        <div class="col-sm-2">
 
+        {# Picture #}
+        <div class="col-sm-2">
             <img src="{{ user.profile_img }}"
                  alt="{{ user.name }}"
                  class="img-thumbnail img-responsive"
                  style="max-width: 100px;"
             >
-
         </div>
 
-
-
-            <div class="col-sm-10">
-                {% if user.username %}
-                <p>
-                    Welcome to your profile, your balance is: {{ user.account_balance }}
-                    and you have {{ user.bytes_stored }} bytes stored with us.
-                </p>
-                {% endif %}
-            </div>
-
-
-
+        {# Small account information if username exists for this user. #}
+        <div class="col-sm-10">
+            {% if user.username %}
+            <p>
+                Welcome to your profile, your balance is: {{ user.account_balance }}
+                and you have {{ user.bytes_stored }} bytes stored with us.
+            </p>
+            {% endif %}
+        </div>
     </div>
 
 
+    {# Username form if first time logging in or payment form with additional information #}
     <div class="row">
 
         {% if username_form %}
 
+            {# Username creation form if first time logging in. #}
             <div class="col-sm-12">
                 {% include 'username_form.html' %}
             </div>
 
         {% else %}
 
+            {# Payment form and additional information #}
             <div class="col-sm-4">
                 <div class="well">
                     {% with form=payment_form %}
@@ -58,6 +58,7 @@
     </div>
 
 
-
+    {# Uploading tool #}
+    {% include 'upload_widget.html' %}
 
 {% endblock %}

@@ -19,12 +19,15 @@ opplett_blueprint = Blueprint(name='opplett_blueprint',
 
 
 @opplett_blueprint.route('/')
-def home_page():
-    return render_template('home_index.html')
+def home():
+    return render_template('home.html')
 
 
 @opplett_blueprint.route('/payment', methods=['POST'])
 def payment():
+    """
+    Process a payment form. 
+    """
     # Get google info about user
     user = get_user_via_oauth()
     if not hasattr(user, 'email'):
@@ -56,16 +59,19 @@ def payment():
                     getattr(form, field).label.text,
                     error
                 ), 'info')
-    return redirect(url_for('opplett_blueprint.profile', username_or_id=dbuser.username))
+    return redirect(url_for('opplett_blueprint.profile', username=dbuser.username))
 
 
 @opplett_blueprint.route('/test')
 def test():
     return render_template('profile_dashboard/dashboard.html')
 
-@opplett_blueprint.route('/user/<username_or_id>')
-def profile(username_or_id):
-    """If first time user has signed in, create a username"""
+
+@opplett_blueprint.route('/user/<username>')
+def profile(username):
+    """
+    User Profile
+    """
 
     # Get google info about user
     user = get_user_via_oauth()
@@ -73,14 +79,16 @@ def profile(username_or_id):
         return user  # This is a redirect
 
     dbuser = next(UserModel.query(hash_key=user.email), None)
+    dbuser.bytes_stored += 100
+    dbuser.save()
 
     if dbuser is not None:
         current_app.logger.info('Username: ', dbuser.username)
-        if dbuser.email == user.email:
+        if dbuser.username == username:
             payment_form = PaymentForm()
             return render_template('profile.html', user=dbuser, payment_form=payment_form, stripe_key = os.environ.get('STRIPE_PUBLISHABLE_KEY'))
         else:
-            return 'We found you on google, but your username in the DB: {} does not match the one provided: {}'.format(dbuser.username, username_or_id)
+            return 'We found you on google, but your username in the DB: {} does not match the one logged in with: {}'.format(dbuser.username, username)
     else:
         return 'Unable to locate you in the database'
 
@@ -99,7 +107,7 @@ def login():
 
     if ddbuser is not None:
         current_app.logger.info('User {} is found in database, redirecting to profile page.'.format(ddbuser.username))
-        return redirect(url_for('opplett_blueprint.profile', username_or_id=ddbuser.username))
+        return redirect(url_for('opplett_blueprint.profile', username=ddbuser.username))
 
     # Form processing if first time user has signed in.
     form = UserNameForm()
@@ -121,7 +129,7 @@ def login():
             new_user.save()
             flash('Your username: <strong>{}</strong> is accepted!'.format(form.username.data), 'success')
             current_app.logger.info('Processed proposed username: {}'.format(form.username.data))
-            return redirect(url_for('opplett_blueprint.profile', username_or_id=new_user.username))
+            return redirect(url_for('opplett_blueprint.profile', username=new_user.username))
 
     # If we made it here, user does not exist and has not been presented a form for creating a username
     return render_template('profile.html', user=user, username_form=form)
