@@ -21,7 +21,10 @@ stripe.api_key = stripe_keys['secret_key']
 
 
 # Application definition
-app = Flask(import_name=__name__, static_url_path='')
+app = Flask(import_name=__name__,
+            static_url_path='/base-static',
+            static_folder='static',
+            )
 app.secret_key = os.environ.get('SECRET_KEY')
 
 

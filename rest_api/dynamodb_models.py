@@ -1,5 +1,7 @@
+import os
+
 from pynamodb.models import Model
-from pynamodb.attributes import UnicodeAttribute, UTCDateTimeAttribute, JSONAttribute
+from pynamodb.attributes import UnicodeAttribute, UTCDateTimeAttribute, JSONAttribute, NumberAttribute
 from pynamodb.indexes import GlobalSecondaryIndex, AllProjection
 from datetime import datetime
 
@@ -38,10 +40,16 @@ class UserModel(Model):
     """
     class Meta:
         table_name = 'user_table'
-        host = 'http://dynamodbservice:8000'
+        host = os.environ.get('DYNAMODB_ENDPOINT')
 
     email = UnicodeAttribute(hash_key=True, attr_name='email')
     username = UnicodeAttribute(range_key=True, attr_name='username', default='N/A')
     username_index = UserUsernameIndex()
+    name = UnicodeAttribute(attr_name='name')
+    account_balance = NumberAttribute(default=0, attr_name='account_balance')
+    bytes_stored = NumberAttribute(default=0, attr_name='bytes_stored')
+    profile_img = UnicodeAttribute(attr_name='profile_img')
+
+
 
 

@@ -6,16 +6,17 @@ from .forms import UserNameForm, PaymentForm
 from rest_api.dynamodb_models import UserModel
 
 from flask.blueprints import Blueprint
-from flask import render_template, redirect, url_for, current_app, request, flash
-
-
+from flask import (render_template, redirect, url_for,
+                   current_app, request, flash)
 
 
 opplett_blueprint = Blueprint(name='opplett_blueprint',
                               import_name=__name__,
                               template_folder='templates',
                               static_folder='static',
+                              static_url_path='/opplett-static'
                               )
+
 
 @opplett_blueprint.route('/')
 def home_page():
@@ -34,8 +35,6 @@ def payment():
     form = PaymentForm()
     if form.validate_on_submit():
 
-        current_app.logger.info('Got payment amount: {}'.format(form.data.get('payment_amount')))
-
         customer = stripe.Customer.create(
             email=dbuser.email,
             source=request.form['stripeToken'],
@@ -46,6 +45,9 @@ def payment():
             currency='usd',
             description='Test charge'
         )
+
+        # TODO: Save results of charge dictionary
+        current_app.logger.info('Processed charge: {}'.format(charge.to_dict()))
         flash('Payment succeeded!', 'success')
     else:
         for field, errors in form.errors.items():
@@ -56,6 +58,10 @@ def payment():
                 ), 'info')
     return redirect(url_for('opplett_blueprint.profile', username_or_id=dbuser.username))
 
+
+@opplett_blueprint.route('/test')
+def test():
+    return render_template('profile_dashboard/dashboard.html')
 
 @opplett_blueprint.route('/user/<username_or_id>')
 def profile(username_or_id):
@@ -69,9 +75,10 @@ def profile(username_or_id):
     dbuser = next(UserModel.query(hash_key=user.email), None)
 
     if dbuser is not None:
+        current_app.logger.info('Username: ', dbuser.username)
         if dbuser.email == user.email:
             payment_form = PaymentForm()
-            return render_template('profile.html', user=user, payment_form=payment_form, stripe_key = os.environ.get('STRIPE_PUBLISHABLE_KEY'))
+            return render_template('profile.html', user=dbuser, payment_form=payment_form, stripe_key = os.environ.get('STRIPE_PUBLISHABLE_KEY'))
         else:
             return 'We found you on google, but your username in the DB: {} does not match the one provided: {}'.format(dbuser.username, username_or_id)
     else:
@@ -107,7 +114,10 @@ def login():
         # Store new username and redirect to profile page.
         else:
             current_app.logger.info('Saving new username: {}'.format(form.username.data))
-            new_user = UserModel(username=form.username.data, email=user.email)
+            new_user = UserModel(username=form.username.data,
+                                 email=user.email,
+                                 name=user.name,
+                                 profile_img=user.profile_img)
             new_user.save()
             flash('Your username: <strong>{}</strong> is accepted!'.format(form.username.data), 'success')
             current_app.logger.info('Processed proposed username: {}'.format(form.username.data))

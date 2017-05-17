@@ -1,45 +1,45 @@
-
-{% if form.errors %}
-{{ form.errors }}
-{% endif %}
-
-
-
-<form action="/payment" method="post" id="payment_form">
+<form action="/payment" method="post" id="payment_form" class="form-horizontal">
 
     <div class="form-group">
-        {{ form.csrf_token }}
-        {{ form.payment_amount.label }} {{ form.payment_amount(class_="form-control", id='amt_field') }}
+
+            {{ form.csrf_token }}
+            {{ form.payment_amount.label }}
+            {{ form.payment_amount(class_="form-control", id='amt_field') }}
+        <div>
+            <div id="stripe_button"></div>
+
+            <div id="loadingicon" hidden>
+                <button class="btn btn-md btn-info" disabled>
+                    <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+                    Hang tight! We're processing your payment!
+                </button>
+            </div>
+        </div>
+
     </div>
 
-    <div id="stripe_button"></div>
 
-    <div class="container" id="loadingicon" hidden>
-        <button class="btn btn-md btn-info" disabled>
-            <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
-            Hang tight! We're processing your payment!
-        </button>
-    </div>
+    <script type="text/javascript">
+        $('#amt_field').click(function () {
+            var payment_amt = $('#amt_field').val();
+            if (payment_amt > 0) {
+                $('#stripe_button').html(
+                    '<script src="https://checkout.stripe.com/checkout.js" class="stripe-button"' +
+                    'data-key="{{ stripe_key }}"' +
+                    'data-description="Payment to Opplett.io"' +
+                    'data-amount="' + payment_amt * 100 + '"' +
+                    'data-locale="auto"></' + 'script>');
+            }
+            else {
+                $('#stripe_button').html('');
+            }
+
+        });
+
+        $('#payment_form').on('submit', function(){
+            $('#loadingicon').show();
+        });
+    </script>
 </form>
 
-<script type="text/javascript">
-    $('#amt_field').click(function () {
-        var payment_amt = $('#amt_field').val();
-        if (payment_amt > 0) {
-            $('#stripe_button').html(
-                '<script src="https://checkout.stripe.com/checkout.js" class="stripe-button"' +
-                'data-key="{{ stripe_key }}"' +
-                'data-description="Payment to Opplett.io"' +
-                'data-amount="' + payment_amt * 100 + '"' +
-                'data-locale="auto"></' + 'script>');
-        }
-        else {
-            $('#stripe_button').html('');
-        }
 
-    });
-
-    $('#payment_form').on('submit', function(){
-        $('#loadingicon').show();
-    });
-</script>
