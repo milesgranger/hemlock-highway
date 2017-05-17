@@ -1,6 +1,7 @@
 from flask import redirect, url_for
 from flask_dance.contrib.google import google
 
+
 class User:
     """
     Representation of an OAuth user
@@ -12,15 +13,17 @@ class User:
             self.profile_img = data.get('picture')
             self.email = data.get('email')
 
+
 def get_user_via_oauth():
-    # Ensure user is validated first.
+
+    # Ensure user is validated first; otherwise return to OAuth login
     try:
         if not google.authorized:
             return redirect(url_for('google.login'))
         resp = google.get('/oauth2/v2/userinfo')
+        # Get google info about user
+        user = User(resp.json(), source='google')
+        return user
     except:
         return redirect(url_for('google.login'))
 
-    # Get google info about user
-    user = User(resp.json(), source='google')
-    return user

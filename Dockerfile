@@ -18,7 +18,7 @@ RUN conda config --add channels numbda
 RUN conda config --add channels conda-forge
 RUN pip install --upgrade pip
 RUN pip install s3fs sqlalchemy psycopg2 boto3 flask bokeh uwsgi pynamodb
-RUN pip install redis Flask-Dance Flask-WTF
+RUN pip install redis Flask-Dance Flask-WTF stripe
 
 WORKDIR /workdir
 

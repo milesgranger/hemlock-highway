@@ -35,11 +35,17 @@
                 This is the info we have about you: {{ user.email }}
             </p>
         </div>
+
+        {% if username_form %}
+            {% include 'username_form.html' %}
+        {% else %}
+            {% with form=payment_form %}
+                {% include 'payment_form.html' %}
+            {% endwith %}
+        {% endif %}
     </div>
 
 
-    {% if form %}
-        {% include 'define_username_form.html' %}
-    {% endif %}
+
 
 {% endblock %}

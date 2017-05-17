@@ -1,11 +1,12 @@
+import stripe
+import os
 
 from .utils import get_user_via_oauth
-from .forms import UserNameForm
+from .forms import UserNameForm, PaymentForm
 from rest_api.dynamodb_models import UserModel
 
 from flask.blueprints import Blueprint
 from flask import render_template, redirect, url_for, current_app, request, flash
-from flask_dance.contrib.google import google
 
 
 
@@ -21,44 +22,69 @@ def home_page():
     return render_template('home_index.html')
 
 
+@opplett_blueprint.route('/payment', methods=['POST'])
+def payment():
+    # Get google info about user
+    user = get_user_via_oauth()
+    if not hasattr(user, 'email'):
+        return user  # This is a redirect
+
+    dbuser = next(UserModel.query(hash_key=user.email), None)
+
+    form = PaymentForm()
+    if form.validate_on_submit():
+
+        current_app.logger.info('Got payment amount: {}'.format(form.data.get('payment_amount')))
+
+        customer = stripe.Customer.create(
+            email=dbuser.email,
+            source=request.form['stripeToken'],
+        )
+        charge = stripe.Charge.create(
+            customer=customer.id,
+            amount=int(form.data.get('payment_amount') * 100),
+            currency='usd',
+            description='Test charge'
+        )
+        flash('Payment succeeded!', 'success')
+    else:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(u"Error in the %s field - %s" % (
+                    getattr(form, field).label.text,
+                    error
+                ), 'info')
+    return redirect(url_for('opplett_blueprint.profile', username_or_id=dbuser.username))
+
+
 @opplett_blueprint.route('/user/<username_or_id>')
 def profile(username_or_id):
     """If first time user has signed in, create a username"""
-    # Ensure user is validated first.
-    try:
-        if not google.authorized:
-            return redirect(url_for('google.login'))
-        resp = google.get('/oauth2/v2/userinfo')
-    except:
-        return redirect(url_for('google.login'))
 
     # Get google info about user
     user = get_user_via_oauth()
+    if not hasattr(user, 'email'):
+        return user  # This is a redirect
+
     dbuser = next(UserModel.query(hash_key=user.email), None)
 
     if dbuser is not None:
-        if dbuser.username == username_or_id:
-            return render_template('profile.html', user=user)
+        if dbuser.email == user.email:
+            payment_form = PaymentForm()
+            return render_template('profile.html', user=user, payment_form=payment_form, stripe_key = os.environ.get('STRIPE_PUBLISHABLE_KEY'))
         else:
             return 'We found you on google, but your username in the DB: {} does not match the one provided: {}'.format(dbuser.username, username_or_id)
     else:
-        return 'Unable to locate you in the database. Here is the output from google: {}'.format(resp.json())
+        return 'Unable to locate you in the database'
 
 
 @opplett_blueprint.route('/login', methods=['GET', 'POST'])
 def login():
 
-    # Ensure user is validated first.
-    try:
-        if not google.authorized:
-            return redirect(url_for('google.login'))
-        resp = google.get('/oauth2/v2/userinfo')
-    except:
-        return redirect(url_for('google.login'))
-
     # Get google info about user
     user = get_user_via_oauth()
-    current_app.logger.info('Got Google Response: {}'.format(resp.text))
+    if not hasattr(user, 'email'):
+        return user  # This is a redirect
 
     # Check if user exists in the database, if so, redirect to profile page without
     # form to create username.
@@ -88,7 +114,7 @@ def login():
             return redirect(url_for('opplett_blueprint.profile', username_or_id=new_user.username))
 
     # If we made it here, user does not exist and has not been presented a form for creating a username
-    return render_template('profile.html', user=user, form=form)
+    return render_template('profile.html', user=user, username_form=form)
 
 
 

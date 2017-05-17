@@ -7,6 +7,6 @@ google_blueprint = make_google_blueprint(
     client_secret=os.environ.get('OAUTH_GOOGLE_CLIENT_SECRET'),
     scope=['profile', 'email'],
     redirect_to='opplett_blueprint.login',
-    reprompt_consent=True,
-    offline=True
+    reprompt_consent=False,
+    offline=False
 )
