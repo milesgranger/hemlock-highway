@@ -72,7 +72,7 @@ $(document).ready(function(){
             var xhr = new XMLHttpRequest();
             xhr.open(
                 "GET",
-                "/sign_s3?file_name=" + file.name + "&file_type=" + file.type + "&file_size=" + file.size
+                "/sign-s3?file-name=" + file.name + "&file-type=" + file.type + "&file-size=" + file.size
             );
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {

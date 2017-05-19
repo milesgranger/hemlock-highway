@@ -17,8 +17,11 @@ def list_files():
     Expects arg of 'username' and optionally 'path' to filter paths.
     :return: JSON object of file locations
     """
+
+    # TODO: Protect this view; not just anyone should be able to list files: verify user is logged in and matches.
+
     username = request.args.get('username')
-    path = request.args.get('path')
+    path = request.args.get('path', '')
     if not username:
         return jsonify({'error': 1, 'reason': 'No username supplied.'})
 
@@ -26,17 +29,20 @@ def list_files():
                            secret=os.environ.get('AWS_SECRET_ACCESS_KEY')
                            )
     return jsonify({'error': 0,
-                    'files': fs.ls(os.environ.get('S3_BUCKET') + '/{}'.format(username))})
+                    'files': fs.ls('{bucket}/{username}/{path}'.format(bucket=os.environ.get('S3_BUCKET'),
+                                                                       username=username,
+                                                                       path=path))
+                    })
 
 
-@api_blueprint.route('/sign_s3')
+@api_blueprint.route('/sign-s3')
 def sign_s3():
     """
     Given a request, returns a presigned_post request to upload a file to AWS S3 
     """
-    file_name = request.args.get('file_name')
-    file_type = request.args.get('file_type')
-    file_size = float(request.args.get('file_size'))
+    file_name = request.args.get('file-name')
+    file_type = request.args.get('file-type')
+    file_size = float(request.args.get('file-size'))
 
     # Fail if not all data is available.
     if not all([file_type, file_name]):
