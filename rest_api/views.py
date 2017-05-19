@@ -12,7 +12,7 @@ api_blueprint = blueprints.Blueprint('api_blueprint',
                                      template_folder='templates')
 
 @api_blueprint.route('/list-files')
-def list_files():
+def list_files(username=None, path=None):
     """
     Expects arg of 'username' and optionally 'path' to filter paths.
     :return: JSON object of file locations
@@ -31,7 +31,8 @@ def list_files():
     return jsonify({'error': 0,
                     'files': fs.ls('{bucket}/{username}/{path}'.format(bucket=os.environ.get('S3_BUCKET'),
                                                                        username=username,
-                                                                       path=path))
+                                                                       path=path),
+                                   detail=True)
                     })
 
 
@@ -69,7 +70,6 @@ def sign_s3():
         .format(expiresIn)
     )
     presigned_post = s3.generate_presigned_post(
-
         Bucket=os.environ.get('S3_BUCKET'),
         Key='milesg/{}'.format(file_name),
         Fields={'acl': 'public-read', 'Content-Type': file_type},
@@ -86,6 +86,14 @@ def sign_s3():
                     'url': 'https://{}.s3.amazonaws.com/{}'.format(os.environ.get('S3_BUCKET'),
                                                                    file_name)
                     })
+
+@api_blueprint.route('/successful-upload')
+def successful_upload():
+    """
+    Notify of successful upload
+    :return: 
+    """
+    pass
 
 @api_blueprint.route('/user/<path:vardirs>')
 def get_files(vardirs=None):

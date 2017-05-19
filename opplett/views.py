@@ -1,12 +1,12 @@
 import stripe
 import os
 
-from .utils import get_user_via_oauth
+from .utils import get_user_via_oauth, list_files
 from .forms import UserNameForm, PaymentForm
 from rest_api.dynamodb_models import UserModel, PaymentModel
 
 from flask.blueprints import Blueprint
-from flask import (render_template, redirect, url_for, send_from_directory, send_file,
+from flask import (render_template, redirect, url_for, send_from_directory, jsonify,
                    current_app, request, flash)
 
 
@@ -78,22 +78,25 @@ def payment():
 
 # TODO: Fix this hack. :) change directory references in the html files.
 @opplett_blueprint.route('/assets/<path:dirs>')
-def redirect(dirs):
+def redirect_files(dirs):
     d = os.path.join(os.path.dirname(__file__), 'templates', 'user_dashboard', 'assets', dirs)
     f = os.path.basename(d)
     d = os.path.dirname(d)
     return send_from_directory(d, f)
 
-@opplett_blueprint.route('/profile-test')
+@opplett_blueprint.route('/test')
 def test():
-    return render_template('user_dashboard/user.html')
 
+    return jsonify({'data': request.headers})
 
 @opplett_blueprint.route('/user/<username>')
-def profile(username):
+@opplett_blueprint.route('/user/<username>/<path:vardirs>')
+def profile(username, vardirs=''):
     """
     User Profile
     """
+
+    current_app.logger.info('Username {} requesting access to prifle page.'.format(username))
 
     # Get google info about user
     user = get_user_via_oauth()
@@ -102,11 +105,9 @@ def profile(username):
     dbuser = next(UserModel.query(hash_key=user.email), None)
 
 
-
     # TODO: Remove this
     dbuser.bytes_stored += 100
     dbuser.save()
-
 
 
     if dbuser is not None:
@@ -115,8 +116,10 @@ def profile(username):
         if dbuser.username == username:
             payment_form = PaymentForm()
             payments = [payment._get_json() for payment in PaymentModel.query(hash_key=dbuser.username)]
+            files = list_files(dbuser.username, path=vardirs)
             return render_template('profile.html',
                                    user=dbuser,
+                                   files=files,
                                    payments=payments,
                                    payment_form=payment_form,
                                    stripe_key=os.environ.get('STRIPE_PUBLISHABLE_KEY')
@@ -125,6 +128,7 @@ def profile(username):
             # User is logged in with OAuth and has a username with us but trying to access a profile which isn't theirs.
             return redirect(url_for('opplett_blueprint.profile', username=dbuser.username))
     else:
+        current_app.logger.info('Current user found to be done in database, redirecting to login page.')
         # An unregistered user tried to access a profile page, need to redirect to login to create username
         return redirect(url_for('opplett_blueprint.login'))
 
@@ -154,7 +158,7 @@ def login():
             flash('Sorry the username <strong>{}</strong> already exists, please try a different one.'
                   .format(form.username.data),
                   'info')
-            return redirect(url_for('opplett_blueprint.login'))
+            return redirect(url_for('opplett_blueprint.profile'))
         # Store new username and redirect to profile page.
         else:
             current_app.logger.info('Saving new username: {}'.format(form.username.data))

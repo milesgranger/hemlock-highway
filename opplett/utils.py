@@ -1,3 +1,6 @@
+import s3fs
+import os
+import json
 from flask import redirect, url_for
 from flask_dance.contrib.google import google
 
@@ -27,3 +30,21 @@ def get_user_via_oauth():
     except:
         return redirect(url_for('google.login'))
 
+
+
+def list_files(username, path=''):
+    """
+    Given username and option path, return file details
+    """
+    fs = s3fs.S3FileSystem(key=os.environ.get('AWS_ACCESS_KEY_ID'),
+                           secret=os.environ.get('AWS_SECRET_ACCESS_KEY')
+                           )
+    files = fs.ls('{bucket}/{username}/{path}'.format(bucket=os.environ.get('S3_BUCKET'),
+                                                      username=username,
+                                                      path=path),
+                  detail=True)
+
+    for file in files:
+        # Forget about the first two, which is ${S3_BUCKET}/${username}/path/to/file
+        file['Key'] = '/'.join(file['Key'].split('/')[2:])
+    return files

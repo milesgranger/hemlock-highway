@@ -13,6 +13,16 @@ class UserNameForm(FlaskForm):
     )
 
 
+class NewDirectoryForm(FlaskForm):
+    """
+    Form to make new directory
+    """
+    dir_name = StringField(
+        'New Directory Name:',
+        validators=[DataRequired(message='This is required.')]
+    )
+
+
 class PaymentForm(FlaskForm):
     """
     Form to submit a payment.

@@ -66,10 +66,43 @@
 
     </div>
 
+    <hr/>
+
+
+    {#
+       All widgets / elements concerning the downloading and uploading of files.
+       Everything above this, is profile specific, below is for controlling of files.
+    #}
+
 
     {# Uploading tool #}
     {% if user.username %}
-        {% include 'upload_widget.html' %}
+
+        <div class="row" style="margin-bottom: 2%">
+            <div class="col-sm-8 col-sm-offset-4">
+                <button type="button" class="btn btn-primary">Make new directory</button>
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="col-sm-4">
+                {% include 'upload_widget.html' %}
+            </div>
+
+            <div class="col-sm-8">
+                {% for file in files %}
+                    <a href="{{ user.username + '/' + file['Key'] }}" class="list-group-item list-group-item-success">
+                        <span class="badge alert-success pull-right">Download</span>
+                        {{ file['Key'] }}
+                    </a>
+                {% endfor %}
+                <a href="#" class="list-group-item list-group-item-success"><span class="badge alert-success pull-right">Download</span>image-01.jpg</a>
+                <a href="#" class="list-group-item list-group-item-success"><span class="badge alert-success pull-right">Download</span>image-01.jpg</a>
+            </div>
+
+        </div>
+
     {% endif %}
 
 {% endblock %}
