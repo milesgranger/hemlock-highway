@@ -44,10 +44,13 @@ def payment():
         )
         charge = stripe.Charge.create(
             customer=customer.id,
-            amount=int(form.data.get('payment_amount') * 100),
+            amount=int(form.data.get('payment_amount') * 100),  # stripe needs payment amounts in cents.
             currency='usd',
             description='Test charge'
         )
+
+        dbuser.balance += charge.to_dict().get('amount') / 100  # Convert amount from stripes from cents to dollar amt.
+        dbuser.save()
 
         # TODO: Save results of charge dictionary
         current_app.logger.info('Processed charge: {}'.format(charge.to_dict()))
@@ -83,7 +86,7 @@ def profile(username):
     dbuser.save()
 
     if dbuser is not None:
-        current_app.logger.info('Username: ', dbuser.username)
+        current_app.logger.info('Username: {}'.format(dbuser.username))
         if dbuser.username == username:
             payment_form = PaymentForm()
             return render_template('profile.html', user=dbuser, payment_form=payment_form, stripe_key = os.environ.get('STRIPE_PUBLISHABLE_KEY'))

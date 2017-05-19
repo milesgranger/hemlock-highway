@@ -4,7 +4,7 @@
 {% block content %}
 
     {# Picture and user information so long as this isn't their first time logging in. #}
-    <div class="row">
+    <div class="row" style="margin-bottom: 5%;">
 
         {# Picture #}
         <div class="col-sm-2">
@@ -19,12 +19,14 @@
         <div class="col-sm-10">
             {% if user.username %}
             <p>
-                Welcome to your profile, your balance is: {{ user.account_balance }}
+                Welcome to your profile, your balance is: {{ user.balance }}
                 and you have {{ user.bytes_stored }} bytes stored with us.
             </p>
             {% endif %}
         </div>
     </div>
+
+
 
 
     {# Username form if first time logging in or payment form with additional information #}
@@ -59,6 +61,8 @@
 
 
     {# Uploading tool #}
-    {% include 'upload_widget.html' %}
+    {% if user.username %}
+        {% include 'upload_widget.html' %}
+    {% endif %}
 
 {% endblock %}

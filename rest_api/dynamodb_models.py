@@ -46,7 +46,7 @@ class UserModel(Model):
     username = UnicodeAttribute(range_key=True, attr_name='username', default='N/A')
     username_index = UserUsernameIndex()
     name = UnicodeAttribute(attr_name='name')
-    account_balance = NumberAttribute(default=0, attr_name='account_balance')
+    balance = NumberAttribute(default=0, attr_name='balance')
     bytes_stored = NumberAttribute(default=0, attr_name='bytes_stored')
     profile_img = UnicodeAttribute(attr_name='profile_img')
 

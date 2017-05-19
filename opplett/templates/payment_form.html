@@ -1,7 +1,6 @@
 <form action="/payment" method="post" id="payment_form" class="form-horizontal">
 
     <div class="form-group">
-
             {{ form.csrf_token }}
             {{ form.payment_amount.label }}
             {{ form.payment_amount(class_="form-control", id='amt_field') }}
@@ -36,7 +35,7 @@
 
         });
 
-        $('#payment_form').on('submit', function(){
+        $('#payment_form').submit(function(){
             $('#loadingicon').show();
         });
     </script>
