@@ -6,7 +6,7 @@ from .forms import UserNameForm, PaymentForm
 from rest_api.dynamodb_models import UserModel, PaymentModel
 
 from flask.blueprints import Blueprint
-from flask import (render_template, redirect, url_for,
+from flask import (render_template, redirect, url_for, send_from_directory, send_file,
                    current_app, request, flash)
 
 
@@ -76,9 +76,17 @@ def payment():
     return redirect(url_for('opplett_blueprint.profile', username=dbuser.username))
 
 
-@opplett_blueprint.route('/test')
+# TODO: Fix this hack. :) change directory references in the html files.
+@opplett_blueprint.route('/assets/<path:dirs>')
+def redirect(dirs):
+    d = os.path.join(os.path.dirname(__file__), 'templates', 'user_dashboard', 'assets', dirs)
+    f = os.path.basename(d)
+    d = os.path.dirname(d)
+    return send_from_directory(d, f)
+
+@opplett_blueprint.route('/profile-test')
 def test():
-    return render_template('profile_dashboard/dashboard.html')
+    return render_template('user_dashboard/user.html')
 
 
 @opplett_blueprint.route('/user/<username>')
