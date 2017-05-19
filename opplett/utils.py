@@ -31,14 +31,21 @@ def get_user_via_oauth():
         return redirect(url_for('google.login'))
 
 
-
-def list_files(username, path=''):
+def get_s3fs():
     """
-    Given username and option path, return file details
+    Convenience method, Return connected s3fs object
     """
     fs = s3fs.S3FileSystem(key=os.environ.get('AWS_ACCESS_KEY_ID'),
                            secret=os.environ.get('AWS_SECRET_ACCESS_KEY')
                            )
+    return fs
+
+
+def list_files_and_folders(username, path=''):
+    """
+    Given username and option path, return file details
+    """
+    fs = get_s3fs()
     files = fs.ls('{bucket}/{username}/{path}'.format(bucket=os.environ.get('S3_BUCKET'),
                                                       username=username,
                                                       path=path),

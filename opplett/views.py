@@ -1,7 +1,8 @@
 import stripe
 import os
 
-from .utils import get_user_via_oauth, list_files
+
+from .utils import get_user_via_oauth, list_files_and_folders
 from .forms import UserNameForm, PaymentForm
 from rest_api.dynamodb_models import UserModel, PaymentModel
 
@@ -116,10 +117,23 @@ def profile(username, vardirs=''):
         if dbuser.username == username:
             payment_form = PaymentForm()
             payments = [payment._get_json() for payment in PaymentModel.query(hash_key=dbuser.username)]
-            files = list_files(dbuser.username, path=vardirs)
+            files_n_folders = list_files_and_folders(dbuser.username, path=vardirs)
+
+            from .utils import get_s3fs
+            fs = get_s3fs()
+            fs.exists('s3://{bucket}/{username}/{vardirs}'.format(bucket=os.environ.get('S3_BUCKET'),
+                                                                         username=username,
+                                                                         vardirs=vardirs)
+                      )
+
+            #fs.mkdir('s3://{bucket}/{username}/test-folder'.format(bucket=os.environ.get('S3_BUCKET'),
+            #                                                             username=username,
+            #                                                             vardirs=vardirs)
+            #         )
+
             return render_template('profile.html',
                                    user=dbuser,
-                                   files=files,
+                                   files_n_folders=files_n_folders,
                                    payments=payments,
                                    payment_form=payment_form,
                                    stripe_key=os.environ.get('STRIPE_PUBLISHABLE_KEY')
@@ -169,7 +183,7 @@ def login():
             new_user.save()
             flash('Your username: <strong>{}</strong> is accepted!'.format(form.username.data), 'success')
             current_app.logger.info('Processed proposed username: {}'.format(form.username.data))
-            return redirect(url_for('opplett_blueprint.profile', username=new_user.username))
+            return redirect(url_for('opplett_blueprint.profile', username=new_user.username, vardirs=''))
 
     # If we made it here, user does not exist and has not been presented a form for creating a username
     return render_template('profile.html', user=user, username_form=form)

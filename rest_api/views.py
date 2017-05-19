@@ -71,7 +71,7 @@ def sign_s3():
     )
     presigned_post = s3.generate_presigned_post(
         Bucket=os.environ.get('S3_BUCKET'),
-        Key='milesg/{}'.format(file_name),
+        Key='milesg/test-folder/{}'.format(file_name),
         Fields={'acl': 'public-read', 'Content-Type': file_type},
         Conditions=[
             {'acl': 'public-read'},
@@ -83,7 +83,7 @@ def sign_s3():
     current_app.logger.info(presigned_post)
 
     return jsonify({'data': presigned_post,
-                    'url': 'https://{}.s3.amazonaws.com/{}'.format(os.environ.get('S3_BUCKET'),
+                    'url': 'https://{}.s3.amazonaws.com/test-folder/{}/'.format(os.environ.get('S3_BUCKET'),
                                                                    file_name)
                     })
 
