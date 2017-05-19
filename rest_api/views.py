@@ -1,7 +1,8 @@
-import boto3
-from botocore.client import Config
+import s3fs
 import os
 import ast
+import boto3
+from botocore.client import Config
 from flask import request, blueprints, current_app, jsonify
 from .dynamodb_models import FileModel
 
@@ -9,6 +10,24 @@ api_blueprint = blueprints.Blueprint('api_blueprint',
                                      import_name=__name__,
                                      static_folder='static',
                                      template_folder='templates')
+
+@api_blueprint.route('/list-files')
+def list_files():
+    """
+    Expects arg of 'username' and optionally 'path' to filter paths.
+    :return: JSON object of file locations
+    """
+    username = request.args.get('username')
+    path = request.args.get('path')
+    if not username:
+        return jsonify({'error': 1, 'reason': 'No username supplied.'})
+
+    fs = s3fs.S3FileSystem(key=os.environ.get('AWS_ACCESS_KEY_ID'),
+                           secret=os.environ.get('AWS_SECRET_ACCESS_KEY')
+                           )
+    return jsonify({'error': 0,
+                    'files': fs.ls(os.environ.get('S3_BUCKET') + '/{}'.format(username))})
+
 
 @api_blueprint.route('/sign_s3')
 def sign_s3():

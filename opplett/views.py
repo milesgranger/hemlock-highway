@@ -3,7 +3,7 @@ import os
 
 from .utils import get_user_via_oauth
 from .forms import UserNameForm, PaymentForm
-from rest_api.dynamodb_models import UserModel
+from rest_api.dynamodb_models import UserModel, PaymentModel
 
 from flask.blueprints import Blueprint
 from flask import (render_template, redirect, url_for,
@@ -38,6 +38,7 @@ def payment():
     form = PaymentForm()
     if form.validate_on_submit():
 
+        # Process payment
         customer = stripe.Customer.create(
             email=dbuser.email,
             source=request.form['stripeToken'],
@@ -49,8 +50,18 @@ def payment():
             description='Test charge'
         )
 
+        # Save payment in DB
+        payment = PaymentModel(username=dbuser.username,
+                               payment_id=charge.to_dict().get('id'),
+                               payment_details=charge.to_dict()
+                               )
+        payment.save()
+
+
+        # Increment user balance
         dbuser.balance += charge.to_dict().get('amount') / 100  # Convert amount from stripes from cents to dollar amt.
         dbuser.save()
+
 
         # TODO: Save results of charge dictionary
         current_app.logger.info('Processed charge: {}'.format(charge.to_dict()))
@@ -80,20 +91,34 @@ def profile(username):
     user = get_user_via_oauth()
     if not hasattr(user, 'email'):
         return user  # This is a redirect
-
     dbuser = next(UserModel.query(hash_key=user.email), None)
+
+
+
+    # TODO: Remove this
     dbuser.bytes_stored += 100
     dbuser.save()
 
+
+
     if dbuser is not None:
-        current_app.logger.info('Username: {}'.format(dbuser.username))
+
+        # User is verified by OAuth and they have created a username with us.
         if dbuser.username == username:
             payment_form = PaymentForm()
-            return render_template('profile.html', user=dbuser, payment_form=payment_form, stripe_key = os.environ.get('STRIPE_PUBLISHABLE_KEY'))
+            payments = [payment._get_json() for payment in PaymentModel.query(hash_key=dbuser.username)]
+            return render_template('profile.html',
+                                   user=dbuser,
+                                   payments=payments,
+                                   payment_form=payment_form,
+                                   stripe_key=os.environ.get('STRIPE_PUBLISHABLE_KEY')
+                                   )
         else:
-            return 'We found you on google, but your username in the DB: {} does not match the one logged in with: {}'.format(dbuser.username, username)
+            # User is logged in with OAuth and has a username with us but trying to access a profile which isn't theirs.
+            return redirect(url_for('opplett_blueprint.profile', username=dbuser.username))
     else:
-        return 'Unable to locate you in the database'
+        # An unregistered user tried to access a profile page, need to redirect to login to create username
+        return redirect(url_for('opplett_blueprint.login'))
 
 
 @opplett_blueprint.route('/login', methods=['GET', 'POST'])

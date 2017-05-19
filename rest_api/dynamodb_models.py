@@ -11,8 +11,8 @@ class FileModel(Model):
     Dynamodb File model
     """
     class Meta:
-        table_name = 'file_table'
-        host = 'http://dynamodbservice:8000'
+        table_name = 'ol_file_table'
+        host = os.environ.get('DYNAMODB_ENDPOINT')
 
     file_name = UnicodeAttribute(range_key=True, attr_name='file_name')
     file_owner = UnicodeAttribute(hash_key=True, attr_name='file_owner')
@@ -39,7 +39,7 @@ class UserModel(Model):
     Dynamodb User Model
     """
     class Meta:
-        table_name = 'user_table'
+        table_name = 'ol_user_table'
         host = os.environ.get('DYNAMODB_ENDPOINT')
 
     email = UnicodeAttribute(hash_key=True, attr_name='email')
@@ -51,5 +51,17 @@ class UserModel(Model):
     profile_img = UnicodeAttribute(attr_name='profile_img')
 
 
+class PaymentModel(Model):
+    """
+    Dynamodb Payment Model
+    Saves all payments
+    """
+    class Meta:
+        table_name = 'ol_payment_table'
+        host = os.environ.get('DYNAMODB_ENDPOINT')
+
+    username = UnicodeAttribute(hash_key=True, attr_name='username')
+    payment_id = UnicodeAttribute(range_key=True, attr_name='payment_id')
+    payment_details = JSONAttribute(default={}, attr_name='payment_details')
 
 
