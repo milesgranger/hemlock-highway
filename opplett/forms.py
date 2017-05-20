@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, FloatField, SelectField
+from wtforms import StringField, FloatField, SelectField, HiddenField
 from wtforms.validators import DataRequired
 
 
@@ -19,6 +19,18 @@ class NewDirectoryForm(FlaskForm):
     """
     dir_name = StringField(
         'New Directory Name:',
+        validators=[DataRequired(message='This is required.')]
+    )
+    username = HiddenField(label='username')
+    current_dir = HiddenField(label='current_dir')
+
+
+class RemoveDirectoryForm(FlaskForm):
+    """
+    Form to remove current directory and all it's contents
+    """
+    dir_name = StringField(
+        "Please confirm by typing this directory's name:",
         validators=[DataRequired(message='This is required.')]
     )
 

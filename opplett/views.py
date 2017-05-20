@@ -2,8 +2,8 @@ import stripe
 import os
 
 
-from .utils import get_user_via_oauth, list_files_and_folders
-from .forms import UserNameForm, PaymentForm
+from .utils import get_user_via_oauth, list_files_and_folders, get_s3fs
+from .forms import UserNameForm, PaymentForm, NewDirectoryForm, RemoveDirectoryForm
 from rest_api.dynamodb_models import UserModel, PaymentModel
 
 from flask.blueprints import Blueprint
@@ -85,19 +85,19 @@ def redirect_files(dirs):
     d = os.path.dirname(d)
     return send_from_directory(d, f)
 
+
 @opplett_blueprint.route('/test')
 def test():
-
     return jsonify({'data': request.headers})
+
 
 @opplett_blueprint.route('/user/<username>/')
 @opplett_blueprint.route('/user/<username>')
-@opplett_blueprint.route('/user/<username>/<directory>')
+@opplett_blueprint.route('/user/<username>/<path:directory>')
 def profile(username, directory=''):
     """
     User Profile
     """
-
     current_app.logger.info('Username {} requesting access to prifle page.'.format(username))
 
     # Get google info about user
@@ -116,15 +116,15 @@ def profile(username, directory=''):
 
         # User is verified by OAuth and they have created a username with us.
         if dbuser.username == username:
-            payment_form = PaymentForm()
+
             payments = [payment._get_json() for payment in PaymentModel.query(hash_key=dbuser.username)]
             folders, files = list_files_and_folders(dbuser.username, path=directory)
 
             from .utils import get_s3fs
             fs = get_s3fs()
-            fs.exists('s3://{bucket}/{username}/{vardirs}'.format(bucket=os.environ.get('S3_BUCKET'),
+            fs.exists('s3://{bucket}/{username}/{directory}'.format(bucket=os.environ.get('S3_BUCKET'),
                                                                   username=username,
-                                                                  vardirs=directory)
+                                                                  directory=directory)
                       )
 
             #fs.mkdir('s3://{bucket}/{username}/test-folder'.format(bucket=os.environ.get('S3_BUCKET'),
@@ -132,14 +132,20 @@ def profile(username, directory=''):
             #                                                             vardirs=vardirs)
             #         )
 
+            mkdir_form = NewDirectoryForm()
+            mkdir_form.username.data = username
+
             return render_template('profile.html',
                                    user=dbuser,
                                    folders=folders,
                                    files=files,
-                                   directory=['{dir}'.format(username=username, dir=dir)
+                                   directory=directory,
+                                   breadcrumbs=['{dir}'.format(username=username, dir=dir)
                                               for dir in directory.split('/')],
                                    payments=payments,
-                                   payment_form=payment_form,
+                                   payment_form=PaymentForm(),
+                                   mkdir_form=NewDirectoryForm(),
+                                   rmdir_form=RemoveDirectoryForm(),
                                    stripe_key=os.environ.get('STRIPE_PUBLISHABLE_KEY')
                                    )
         else:
@@ -194,7 +200,44 @@ def login():
 
 
 
+@opplett_blueprint.route('/new_directory', methods=['POST'])
+def new_directory():
+    """
+    Create a new directory
+    """
 
+    # Get google info about user
+    user = get_user_via_oauth()
+    if not hasattr(user, 'email'):
+        return user  # This is a redirect
+    dbuser = next(UserModel.query(hash_key=user.email), None)
+    if dbuser is None:
+        flash('Unable to process request, you were not found in the system!', 'warning')
+        return redirect(url_for('opplett_blueprint.login'))
+
+    form = NewDirectoryForm()
+    if form.validate_on_submit():
+
+        # Ensure that the directory user wants to delete exists
+        if form.username.data == dbuser.username:
+            fs = get_s3fs()
+            # TODO: Ensure this bucket doesn't exist already
+            fs.mkdir('{bucket}/{username}/{current_dir}/{new_dir}'
+                     .format(bucket=os.environ.get('S3_BUCKET'),
+                             username=dbuser.username,
+                             current_dir=form.current_dir.data,
+                             new_dir=form.dir_name.data)
+                     )
+            flash('Successfully made new directory!', 'success')
+            return redirect(url_for('opplett_blueprint.profile',
+                                    username=dbuser.username,
+                                    directory='{current_dir}/{new_dir}'.format(current_dir=form.current_dir.data,
+                                                                               new_dir=form.dir_name.data))
+                            )
+        else:
+            flash('Error making new directory, form username does not match authenticated username.', 'warning')
+
+    return redirect(url_for('opplett_blueprint.profile', username=dbuser.username))
 
 
 

@@ -1,9 +1,14 @@
 
 {% extends 'base.html' %}
 
+{% block head %}
+    <script type="text/javascript" src="{{ url_for('opplett_blueprint.static', filename='opplett-profile.js') }}"></script>
+{% endblock %}
+
+
 {% block content %}
 
-    {# Picture and user information so long as this isn't their first time logging in. #}
+    {# Picture and user information. #}
     <div class="row" style="margin-bottom: 5%;">
 
         {# Picture #}
@@ -26,7 +31,7 @@
         </div>
     </div>
 
-
+    {# Payment widget #}
     <div class="row">
         <div class="col-sm-12">
             {% for username, payment in payments %}
@@ -75,15 +80,45 @@
     #}
 
 
-    {# Uploading tool #}
+    {# If this user has registered a username, show file management portion of profile #}
     {% if user.username %}
 
+        {# Directory navigation and management area #}
         <div class="row" style="margin-bottom: 2%">
+
+            {# Make directory button. #}
+            <div class="col-sm-8 col-sm-offset-4" style="margin-bottom: 2%">
+
+                {# Make new directory #}
+                <button type="button" id="new_dir_button" class="btn btn-primary">Make new folder</button>
+
+                {# Only show option to remove a directory if this isn't the user's root directory #}
+                {% if directory %}
+                    <button type="button" id="rm_dir_button" class="btn btn-danger">Remove this folder</button>
+                {% endif %}
+
+                {% with form=mkdir_form, username=user.username, directory=directory %}
+                    {% include 'new_directory_form.html' %}
+                {% endwith %}
+                {% with form=rmdir_form, username=user.username, directory=directory %}
+                    {% include 'remove_directory_form.html' %}
+                {% endwith %}
+
+            </div>
+
+            {# Make breadcrumbs to folder directory #}
             <div class="col-sm-8 col-sm-offset-4">
-                <button type="button" class="btn btn-primary">Make new directory</button>
+                <ul class="breadcrumb">
+                    <li><a href="{{ url_for('opplett_blueprint.profile', username=user.username) }}">Home</a></li>
+                    {% for breadcrumb in breadcrumbs %}
+                        <li><a href="{{ breadcrumb }}">{{ breadcrumb }}</a></li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
 
+
+        {# Uploading widget and folder/file listing #}
         <div class="row">
 
             <div class="col-sm-4">
@@ -91,30 +126,25 @@
             </div>
 
 
-            {# The main file listing area, breadcrumbs and list of folders and files. #}
+            {# The main file listing area; list of folders and files. #}
             <div class="col-sm-8">
 
-                {# Make breadcrumbs to folder directory #}
-                <ul class="breadcrumb">
-                    <li><a href="{{ url_for('opplett_blueprint.profile', username=user.username) }}">Home</a></li>
-                    {% for dir in directory %}
-                        <li><a href="{{ dir }}">{{ dir }}</a></li>
-                    {% endfor %}
-                </ul>
-
-                {# List the files or the directories, they come sorted with directories first from server #}
+                {# List the folders first #}
                 {% for folder in folders %}
-                    <a href="{{ user.username + '/' + folder['Key'] }}" class="list-group-item list-group-item-info">
+                    <a href="{{ url_for('opplett_blueprint.profile', username=user.username, directory=folder['LocalLink']) }}" class="list-group-item list-group-item-info">
                             <span class="badge alert-info pull-right">Go to folder</span>
-                            {{ folder['Key'] }}
+                            {{ folder['Name'] }}
                     </a>
                 {% endfor %}
+
+                {# List the files #}
                 {% for file in files %}
-                    <a href="{{ user.username + '/' + file['Key'] }}" class="list-group-item list-group-item-success">
+                    <a href="{{ url_for('opplett_blueprint.profile', username=user.username, directory=file['LocalLink']) }}" class="list-group-item list-group-item-success">
                         <span class="badge alert-success pull-right">Download</span>
-                        {{ file['Key'] }}
+                        {{ file['Name'] }}
                     </a>
                 {% endfor %}
+
                 <a href="#" class="list-group-item list-group-item-success"><span class="badge alert-success pull-right">Download</span>image-01.jpg</a>
                 <a href="#" class="list-group-item list-group-item-success"><span class="badge alert-success pull-right">Download</span>image-01.jpg</a>
             </div>

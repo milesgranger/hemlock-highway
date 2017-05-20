@@ -1,6 +1,5 @@
 import s3fs
 import os
-import json
 from flask import redirect, url_for
 from flask_dance.contrib.google import google
 
@@ -25,8 +24,7 @@ def get_user_via_oauth():
             return redirect(url_for('google.login'))
         resp = google.get('/oauth2/v2/userinfo')
         # Get google info about user
-        user = User(resp.json(), source='google')
-        return user
+        return User(resp.json(), source='google')
     except:
         return redirect(url_for('google.login'))
 
@@ -51,7 +49,8 @@ def list_files_and_folders(username, path=''):
                                                       path=path),
                   detail=True)
     for file in files:
-        file['Key'] = os.path.basename(file['Key'])
+        file['Name'] = os.path.basename(file['Key'])
+        file['LocalLink'] = '/'.join([p for p in [path, file.get('Name')] if p])
 
     folders_tmp = sorted([f for f in files if not f.get('Size') or f.get('StoargeClass') == 'DIRECTORY'],
                          key=lambda d: d.get('StorageClass'),
