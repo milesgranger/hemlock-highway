@@ -110,8 +110,8 @@
             <div class="col-sm-8 col-sm-offset-4">
                 <ul class="breadcrumb">
                     <li><a href="{{ url_for('opplett_blueprint.profile', username=user.username) }}">Home</a></li>
-                    {% for breadcrumb in breadcrumbs %}
-                        <li><a href="{{ breadcrumb }}">{{ breadcrumb }}</a></li>
+                    {% for breadcrumb, breadcrumb_path in breadcrumbs %}
+                        <li><a href="{{ url_for('opplett_blueprint.profile', username=user.username, directory=breadcrumb_path) }}">{{ breadcrumb }}</a></li>
                     {% endfor %}
                 </ul>
             </div>

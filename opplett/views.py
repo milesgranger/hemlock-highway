@@ -2,7 +2,7 @@ import stripe
 import os
 
 
-from .utils import get_user_via_oauth, list_files_and_folders, get_s3fs
+from .utils import get_user_via_oauth, list_files_and_folders, get_s3fs, build_bread_crumbs
 from .forms import UserNameForm, PaymentForm, NewDirectoryForm, RemoveDirectoryForm
 from rest_api.dynamodb_models import UserModel, PaymentModel
 
@@ -140,8 +140,7 @@ def profile(username, directory=''):
                                    folders=folders,
                                    files=files,
                                    directory=directory,
-                                   breadcrumbs=['{dir}'.format(username=username, dir=dir)
-                                              for dir in directory.split('/')],
+                                   breadcrumbs=build_bread_crumbs(path=directory),
                                    payments=payments,
                                    payment_form=PaymentForm(),
                                    mkdir_form=NewDirectoryForm(),
@@ -197,7 +196,6 @@ def login():
 
     # If we made it here, user does not exist and has not been presented a form for creating a username
     return render_template('profile.html', user=user, username_form=form)
-
 
 
 @opplett_blueprint.route('/new_directory', methods=['POST'])
