@@ -50,8 +50,21 @@ def list_files_and_folders(username, path=''):
                                                       username=username,
                                                       path=path),
                   detail=True)
-
     for file in files:
-        # Forget about the first two, which is ${S3_BUCKET}/${username}/path/to/file
-        file['Key'] = '/'.join(file['Key'].split('/')[2:])
-    return files
+        file['Key'] = os.path.basename(file['Key'])
+
+    folders_tmp = sorted([f for f in files if not f.get('Size') or f.get('StoargeClass') == 'DIRECTORY'],
+                         key=lambda d: d.get('StorageClass'),
+                         reverse=False)
+
+    # Folders are listed twice, once as a directory, another as a file with Size of 0
+    last_key, folders = None, []
+    for folder in folders_tmp:
+        if folder.get('Key') == last_key:
+            continue
+        else:
+            folders.append(folder)
+            last_key = folder.get('Key')
+
+    files = sorted([file for file in files if file.get('Size')], key=lambda dic: dic.get('Size'))
+    return folders, files

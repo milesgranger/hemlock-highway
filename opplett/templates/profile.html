@@ -90,11 +90,29 @@
                 {% include 'upload_widget.html' %}
             </div>
 
+
+            {# The main file listing area, breadcrumbs and list of folders and files. #}
             <div class="col-sm-8">
-                {% for file_or_folder in files_n_folders %}
-                    <a href="{{ user.username + '/' + file_or_folder['Key'] }}" class="list-group-item list-group-item-success">
-                        <span class="badge alert-success pull-right">{% if file_or_folder['Size'] %}Download{% else %}Go to folder{% endif %}</span>
-                        {{ file_or_folder['Key'] }}
+
+                {# Make breadcrumbs to folder directory #}
+                <ul class="breadcrumb">
+                    <li><a href="{{ url_for('opplett_blueprint.profile', username=user.username) }}">Home</a></li>
+                    {% for dir in directory %}
+                        <li><a href="{{ dir }}">{{ dir }}</a></li>
+                    {% endfor %}
+                </ul>
+
+                {# List the files or the directories, they come sorted with directories first from server #}
+                {% for folder in folders %}
+                    <a href="{{ user.username + '/' + folder['Key'] }}" class="list-group-item list-group-item-info">
+                            <span class="badge alert-info pull-right">Go to folder</span>
+                            {{ folder['Key'] }}
+                    </a>
+                {% endfor %}
+                {% for file in files %}
+                    <a href="{{ user.username + '/' + file['Key'] }}" class="list-group-item list-group-item-success">
+                        <span class="badge alert-success pull-right">Download</span>
+                        {{ file['Key'] }}
                     </a>
                 {% endfor %}
                 <a href="#" class="list-group-item list-group-item-success"><span class="badge alert-success pull-right">Download</span>image-01.jpg</a>

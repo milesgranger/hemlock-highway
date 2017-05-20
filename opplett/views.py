@@ -90,9 +90,10 @@ def test():
 
     return jsonify({'data': request.headers})
 
+@opplett_blueprint.route('/user/<username>/')
 @opplett_blueprint.route('/user/<username>')
-@opplett_blueprint.route('/user/<username>/<path:vardirs>')
-def profile(username, vardirs=''):
+@opplett_blueprint.route('/user/<username>/<directory>')
+def profile(username, directory=''):
     """
     User Profile
     """
@@ -117,13 +118,13 @@ def profile(username, vardirs=''):
         if dbuser.username == username:
             payment_form = PaymentForm()
             payments = [payment._get_json() for payment in PaymentModel.query(hash_key=dbuser.username)]
-            files_n_folders = list_files_and_folders(dbuser.username, path=vardirs)
+            folders, files = list_files_and_folders(dbuser.username, path=directory)
 
             from .utils import get_s3fs
             fs = get_s3fs()
             fs.exists('s3://{bucket}/{username}/{vardirs}'.format(bucket=os.environ.get('S3_BUCKET'),
-                                                                         username=username,
-                                                                         vardirs=vardirs)
+                                                                  username=username,
+                                                                  vardirs=directory)
                       )
 
             #fs.mkdir('s3://{bucket}/{username}/test-folder'.format(bucket=os.environ.get('S3_BUCKET'),
@@ -133,7 +134,10 @@ def profile(username, vardirs=''):
 
             return render_template('profile.html',
                                    user=dbuser,
-                                   files_n_folders=files_n_folders,
+                                   folders=folders,
+                                   files=files,
+                                   directory=['{dir}'.format(username=username, dir=dir)
+                                              for dir in directory.split('/')],
                                    payments=payments,
                                    payment_form=payment_form,
                                    stripe_key=os.environ.get('STRIPE_PUBLISHABLE_KEY')
