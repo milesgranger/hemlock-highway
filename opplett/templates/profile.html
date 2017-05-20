@@ -145,8 +145,9 @@
                     </a>
                 {% endfor %}
 
-                <a href="#" class="list-group-item list-group-item-success"><span class="badge alert-success pull-right">Download</span>image-01.jpg</a>
-                <a href="#" class="list-group-item list-group-item-success"><span class="badge alert-success pull-right">Download</span>image-01.jpg</a>
+                {% if not files and not folders %}
+                    <div class="well"><div class="alert alert-info"><strong>Info:</strong> Looks like there is nothing in this folder!</div></div>
+                {% endif %}
             </div>
 
         </div>

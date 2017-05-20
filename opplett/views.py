@@ -1,5 +1,6 @@
 import stripe
 import os
+import time
 
 
 from .utils import get_user_via_oauth, list_files_and_folders, get_s3fs, build_bread_crumbs
@@ -117,20 +118,12 @@ def profile(username, directory=''):
         # User is verified by OAuth and they have created a username with us.
         if dbuser.username == username:
 
+            start = time.time()
             payments = [payment._get_json() for payment in PaymentModel.query(hash_key=dbuser.username)]
+            current_app.logger.info('Queried databased in {:.2f} seconds'.format(time.time() - start))
+            start = time.time()
             folders, files = list_files_and_folders(dbuser.username, path=directory)
-
-            from .utils import get_s3fs
-            fs = get_s3fs()
-            fs.exists('s3://{bucket}/{username}/{directory}'.format(bucket=os.environ.get('S3_BUCKET'),
-                                                                  username=username,
-                                                                  directory=directory)
-                      )
-
-            #fs.mkdir('s3://{bucket}/{username}/test-folder'.format(bucket=os.environ.get('S3_BUCKET'),
-            #                                                             username=username,
-            #                                                             vardirs=vardirs)
-            #         )
+            current_app.logger.info('Queried files and folder on s3 in {:.2f} seconds'.format(time.time() - start))
 
             mkdir_form = NewDirectoryForm()
             mkdir_form.username.data = username
@@ -220,17 +213,18 @@ def new_directory():
         if form.username.data == dbuser.username:
             fs = get_s3fs()
             # TODO: Ensure this bucket doesn't exist already
-            fs.mkdir('{bucket}/{username}/{current_dir}/{new_dir}'
-                     .format(bucket=os.environ.get('S3_BUCKET'),
-                             username=dbuser.username,
-                             current_dir=form.current_dir.data,
-                             new_dir=form.dir_name.data)
-                     )
+            new_dir = '{bucket}/{username}/{current_dir}{new_dir}'.format(bucket=os.environ.get('S3_BUCKET'),
+                                                                          username=dbuser.username,
+                                                                          current_dir=form.current_dir.data,
+                                                                          new_dir=form.dir_name.data
+                                                                          )
+            current_app.logger.info('trying to make a new directory here: {}'.format(new_dir))
+            fs.mkdir(new_dir)
             flash('Successfully made new directory!', 'success')
             return redirect(url_for('opplett_blueprint.profile',
                                     username=dbuser.username,
-                                    directory='{current_dir}/{new_dir}'.format(current_dir=form.current_dir.data,
-                                                                               new_dir=form.dir_name.data))
+                                    directory='{current_dir}{new_dir}'.format(current_dir=form.current_dir.data,
+                                                                              new_dir=form.dir_name.data))
                             )
         else:
             flash('Error making new directory, form username does not match authenticated username.', 'warning')
