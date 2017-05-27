@@ -1,24 +1,38 @@
 version: '3'
 
 services:
-  webappservice:
+  webapp-service:
     env_file:
-      - dev.env
-    build: .
-    image: webapp:latest
+      - ./dev.env
+    build: ./docker-core/opplett/
+    image: opplett/webapp:latest
     volumes:
       - ./:/workdir
     ports:
       - "5555:5555"
     links:
-      - dynamodbservice
+      - dynamodb-service
+      - postgres-service
     restart: on-failure
+    depends_on:
+      - dynamodb-service
+      - postgres-service
     command:
+      #["uwsgi", "--socket", "0.0.0.0:5555", "--protocol=http", "-w", "wsgi:app"]
       [python, app.py]
 
-  dynamodbservice:
+  dynamodb-service:
     image: peopleperhour/dynamodb
     env_file:
-      - dev.env
+      - ./dev.env
     ports:
       - "8000:8000"
+
+  postgres-service:
+    image: postgres:9.6
+    env_file:
+      - ./dev.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - "/tmp/opplett_pg_data:/var/lib/postgresql"
