@@ -34,8 +34,8 @@
     {# Payment widget #}
     <div class="row">
         <div class="col-sm-12">
-            {% for username, payment in payments %}
-                <p>{{ payment }}</p>
+            {% for payment in payments %}
+                <p>{{ payment.payment_id }}</p>
                 <hr/>
             {% endfor %}
         </div>

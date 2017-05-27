@@ -2,6 +2,8 @@ import stripe
 import os
 import time
 import peewee as pw
+import pickle
+import json
 
 from .utils import get_user_via_oauth, list_files_and_folders, get_s3fs, build_bread_crumbs
 from .forms import UserNameForm, PaymentForm, NewDirectoryForm, RemoveDirectoryForm
@@ -35,7 +37,10 @@ def process_payment():
     if not hasattr(user, 'email'):
         return user  # This is a redirect
 
-    dbuser = next(UserModel.query(hash_key=user.email), None)
+    try:
+        dbuser = UserModel.get(UserModel.email == user.email)
+    except pw.DoesNotExist:
+        dbuser = None
 
     form = PaymentForm()
     if form.validate_on_submit():
@@ -53,20 +58,29 @@ def process_payment():
         )
 
         # Save payment in DB
-        payment = PaymentModel(username=dbuser.username,
-                               payment_id=charge.to_dict().get('id'),
-                               payment_details=charge.to_dict()
-                               )
-        payment.save()
+        #payment = PaymentModel.create(username=dbuser.username,
+        #                              payment_id=charge.to_dict().get('id'),
+        #                              payment_details=pickle.dumps(charge.to_dict())
+        #                              )
+        charge = json.loads(json.dumps(charge.to_dict()))
+        cleaned_charge = {}
+        for k1, v1 in charge.items():
+            if type(v1) != dict:
+                cleaned_charge[k1] = v1
+            else:
+                for k2, v2 in v1.items():
+                    cleaned_charge[k2] = v2
 
+        current_app.logger.info('{}'.format(cleaned_charge))
+        payment = PaymentModel.create(username=dbuser.username, **cleaned_charge)
 
         # Increment user balance
-        dbuser.balance += charge.to_dict().get('amount') / 100  # Convert amount from stripes from cents to dollar amt.
+        dbuser.balance += payment.amount / 100  # Convert amount from cents to dollar amt.
         dbuser.save()
 
 
         # TODO: Save results of charge dictionary
-        current_app.logger.info('Processed charge: {}'.format(charge.to_dict()))
+        current_app.logger.info('Processed charge: {}'.format(cleaned_charge))
         flash('Payment succeeded!', 'success')
     else:
         for field, errors in form.errors.items():
