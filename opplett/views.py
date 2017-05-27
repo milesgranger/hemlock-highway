@@ -58,10 +58,6 @@ def process_payment():
         )
 
         # Save payment in DB
-        #payment = PaymentModel.create(username=dbuser.username,
-        #                              payment_id=charge.to_dict().get('id'),
-        #                              payment_details=pickle.dumps(charge.to_dict())
-        #                              )
         charge = json.loads(json.dumps(charge.to_dict()))
         cleaned_charge = {}
         for k1, v1 in charge.items():
@@ -75,13 +71,13 @@ def process_payment():
         payment = PaymentModel.create(username=dbuser.username, **cleaned_charge)
 
         # Increment user balance
-        dbuser.balance += payment.amount / 100  # Convert amount from cents to dollar amt.
+        dbuser.balance += payment.amount
         dbuser.save()
 
 
         # TODO: Save results of charge dictionary
         current_app.logger.info('Processed charge: {}'.format(cleaned_charge))
-        flash('Payment succeeded!', 'success')
+        flash('Payment of ${} succeeded!'.format(payment.amount / 100), 'success')
     else:
         for field, errors in form.errors.items():
             for error in errors:
@@ -136,6 +132,7 @@ def profile(username, directory=''):
 
             start = time.time()
             payments = [payment for payment in PaymentModel.select().where(PaymentModel.username == dbuser.username)]
+            current_app.logger.info('Payments: {}'.format(payments))
             current_app.logger.info('Queried database in {:.2f} seconds'.format(time.time() - start))
             start = time.time()
             folders, files = list_files_and_folders(dbuser.username, path=directory)
