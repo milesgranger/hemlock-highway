@@ -1,11 +1,11 @@
 import stripe
 import os
 import time
-
+import peewee as pw
 
 from .utils import get_user_via_oauth, list_files_and_folders, get_s3fs, build_bread_crumbs
 from .forms import UserNameForm, PaymentForm, NewDirectoryForm, RemoveDirectoryForm
-from rest_api.dynamodb_models import UserModel, PaymentModel
+from rest_api.models import UserModel, PaymentModel, POSTGRES_DB
 
 from flask.blueprints import Blueprint
 from flask import (render_template, redirect, url_for, send_from_directory, jsonify,
@@ -25,8 +25,8 @@ def home():
     return render_template('home.html')
 
 
-@opplett_blueprint.route('/payment', methods=['POST'])
-def payment():
+@opplett_blueprint.route('/process-payment', methods=['POST'])
+def process_payment():
     """
     Process a payment form. 
     """
@@ -104,23 +104,25 @@ def profile(username, directory=''):
     # Get google info about user
     user = get_user_via_oauth()
     if not hasattr(user, 'email'):
-        return user  # This is a redirect
-    dbuser = next(UserModel.query(hash_key=user.email), None)
+        return user  # This is a redirect to login via OAuth
 
-
-    # TODO: Remove this
-    dbuser.bytes_stored += 100
-    dbuser.save()
-
+    try:
+        dbuser = UserModel.get(UserModel.email == user.email)
+    except pw.DoesNotExist:
+        dbuser = None
 
     if dbuser is not None:
+
+        # TODO: Remove this
+        dbuser.bytes_stored += 100
+        dbuser.save()
 
         # User is verified by OAuth and they have created a username with us.
         if dbuser.username == username:
 
             start = time.time()
-            payments = [payment._get_json() for payment in PaymentModel.query(hash_key=dbuser.username)]
-            current_app.logger.info('Queried databased in {:.2f} seconds'.format(time.time() - start))
+            payments = [payment for payment in PaymentModel.select().where(PaymentModel.username == dbuser.username)]
+            current_app.logger.info('Queried database in {:.2f} seconds'.format(time.time() - start))
             start = time.time()
             folders, files = list_files_and_folders(dbuser.username, path=directory)
             current_app.logger.info('Queried files and folder on s3 in {:.2f} seconds'.format(time.time() - start))
@@ -142,10 +144,11 @@ def profile(username, directory=''):
                                    )
         else:
             # User is logged in with OAuth and has a username with us but trying to access a profile which isn't theirs.
+            flash('You are logged in as {} and do not have access to {}'.format(dbuser.username, username), 'info')
             return redirect(url_for('opplett_blueprint.profile', username=dbuser.username))
     else:
-        current_app.logger.info('Current user found to be done in database, redirecting to login page.')
         # An unregistered user tried to access a profile page, need to redirect to login to create username
+        flash('You need to register for your own account or login', 'info')
         return redirect(url_for('opplett_blueprint.login'))
 
 
@@ -155,11 +158,14 @@ def login():
     # Get google info about user
     user = get_user_via_oauth()
     if not hasattr(user, 'email'):
-        return user  # This is a redirect
+        return user  # This is a redirect to OAuth login
 
     # Check if user exists in the database, if so, redirect to profile page without
     # form to create username.
-    ddbuser = next(UserModel.query(hash_key=user.email), None)
+    try:
+        ddbuser = UserModel.get(UserModel.email == user.email)
+    except pw.DoesNotExist:
+        ddbuser = None
 
     if ddbuser is not None:
         current_app.logger.info('User {} is found in database, redirecting to profile page.'.format(ddbuser.username))
@@ -170,19 +176,21 @@ def login():
     if form.validate_on_submit():
 
         # Handle if username already exists.
-        if next(UserModel.username_index.query(hash_key=form.username.data), None) is not None:
+        count = UserModel.select().where(UserModel.username == form.username.data).count()
+        if count > 0:
             flash('Sorry the username <strong>{}</strong> already exists, please try a different one.'
                   .format(form.username.data),
                   'info')
-            return redirect(url_for('opplett_blueprint.profile'))
+            current_app.logger.info('Proposed username already exists in database: {}'.format(count))
+            return redirect(url_for('opplett_blueprint.login'))
         # Store new username and redirect to profile page.
         else:
             current_app.logger.info('Saving new username: {}'.format(form.username.data))
-            new_user = UserModel(username=form.username.data,
-                                 email=user.email,
-                                 name=user.name,
-                                 profile_img=user.profile_img)
-            new_user.save()
+
+            new_user = UserModel.create(username=form.username.data,
+                                        email=user.email,
+                                        name=user.name,
+                                        profile_img=user.profile_img)
             flash('Your username: <strong>{}</strong> is accepted!'.format(form.username.data), 'success')
             current_app.logger.info('Processed proposed username: {}'.format(form.username.data))
             return redirect(url_for('opplett_blueprint.profile', username=new_user.username, vardirs=''))

@@ -4,7 +4,7 @@ import ast
 import boto3
 from botocore.client import Config
 from flask import request, blueprints, current_app, jsonify
-from .dynamodb_models import FileModel
+from .models import FileModel
 
 api_blueprint = blueprints.Blueprint('api_blueprint',
                                      import_name=__name__,

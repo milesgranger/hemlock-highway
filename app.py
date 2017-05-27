@@ -6,7 +6,6 @@ from flask import Flask
 
 from opplett.views import opplett_blueprint
 from rest_api.oauth import google_blueprint
-from rest_api.utils import create_tables
 from rest_api.views import api_blueprint
 
 DEBUG = os.environ.get('DEBUG', True)
@@ -35,5 +34,6 @@ app.register_blueprint(google_blueprint, url_prefix='/login')
 # Start the server
 if __name__ == '__main__':
     if DEBUG:
+        from rest_api.utils import create_tables
         create_tables()
     app.run(host='0.0.0.0', port=5555, debug=DEBUG)
