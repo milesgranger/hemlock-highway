@@ -1,10 +1,30 @@
+# -*- encoding: UTF-8 -*-
+
 import os
+
+import peewee as pw
 
 from pynamodb.models import Model
 from pynamodb.attributes import UnicodeAttribute, UTCDateTimeAttribute, JSONAttribute
 from datetime import datetime
+from redis import StrictRedis
 
-import peewee as pw
+
+POSTGRES_DB = pw.PostgresqlDatabase(database=os.environ.get('POSTGRES_DB'),
+                                    host=os.environ.get('POSTGRES_ENDPOINT'),
+                                    user=os.environ.get('POSTGRES_USER'),
+                                    password=os.environ.get('POSTGRES_PASSWORD')
+                                    )
+
+
+def get_redis_con() -> StrictRedis:
+    """
+    Get a Redis DB connection
+    :returns StrictRedis: StrictRedis connection
+    """
+    REDIS_DB = StrictRedis(host=os.environ.get('REDIS_ENDPOINT'),
+                           port=6379)
+    return REDIS_DB
 
 
 class FileModel(Model):
@@ -21,13 +41,6 @@ class FileModel(Model):
     upload_date = UTCDateTimeAttribute(null=True,
                                        default=datetime.utcnow(),
                                        attr_name='upload_date')
-
-
-POSTGRES_DB = pw.PostgresqlDatabase('opplett',
-                                    host='postgres-service',
-                                    user=os.environ.get('POSTGRES_USER'),
-                                    password=os.environ.get('POSTGRES_PASSWORD')
-                                    )
 
 
 class BaseModel(pw.Model):

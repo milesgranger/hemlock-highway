@@ -1,15 +1,15 @@
 import s3fs
 import os
-import ast
 import boto3
 from botocore.client import Config
 from flask import request, blueprints, current_app, jsonify
-from .models import FileModel
+from .models import get_redis_con
 
 api_blueprint = blueprints.Blueprint('api_blueprint',
                                      import_name=__name__,
                                      static_folder='static',
                                      template_folder='templates')
+
 
 @api_blueprint.route('/list-files')
 def list_files(username=None, path=None):
@@ -95,27 +95,3 @@ def successful_upload():
     """
     pass
 
-@api_blueprint.route('/user/<path:vardirs>')
-def get_files(vardirs=None):
-
-    vardirs = iter(vardirs.split('/'))
-    username = next(vardirs, None)
-
-    f = FileModel(hash_key=username,
-                  range_key='/path/to/newfile2.log',
-                  meta_data={'file_size': 500, 'file_type': 'image/jpg'})
-    f.save()
-
-    results = [r._get_json() for r in FileModel.query(hash_key=username,
-                                                      file_name__begins_with='/' + '/'.join([dir for dir in vardirs]))]
-
-    #"""
-    data = []
-    for i, (owner, package) in enumerate(results):
-        metadata = package.get('attributes').get('meta_data').get('S')
-        metadata = ast.literal_eval(metadata)
-        data.append({'owner': owner,
-                     'file_metadata': metadata,
-                     'path': package.get('range_key')})
-    #"""
-    return jsonify(data)

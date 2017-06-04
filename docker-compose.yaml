@@ -1,10 +1,10 @@
 version: '3'
 
 services:
+
   webapp-service:
-    env_file:
-      - ./dev.env
-    build: ./docker-core/opplett/
+    env_file: ./dev.env
+    build: ./docker-core/opplett-webapp/
     image: opplett/webapp:latest
     volumes:
       - ./:/workdir
@@ -23,6 +23,17 @@ services:
       #["uwsgi", "--socket", "0.0.0.0:5555", "--protocol=http", "-w", "wsgi:app"]
       [python, app.py]
 
+
+  compute-service:
+    env_file: ./dev.env
+    build: ./docker-core/opplett-compute/
+    image: opplett/compute:latest
+    volumes:
+      - ./:/workdir
+    command:
+      [python, ./compute/main.py]
+
+
   dynamodb-service:
     image: peopleperhour/dynamodb
     env_file:
@@ -30,13 +41,14 @@ services:
     ports:
       - "8000:8000"
 
+
   redis-service:
     image: redis:3.0
 
+
   postgres-service:
     image: postgres:9.6
-    env_file:
-      - ./dev.env
+    env_file: ./dev.env
     ports:
       - "5432:5432"
     volumes:

@@ -4,6 +4,7 @@ import stripe
 import time
 
 from flask import Flask
+from flask_socketio import SocketIO
 
 from opplett.views import opplett_blueprint
 from rest_api.oauth import google_blueprint
@@ -32,10 +33,16 @@ app.register_blueprint(api_blueprint)
 app.register_blueprint(google_blueprint, url_prefix='/login')
 
 
+# SocketIO
+socketio = SocketIO(app)
+from rest_api.socketio_hooks import new_connection, submit_model
+socketio.on_event('new-connection', new_connection)
+socketio.on_event('submit-model', submit_model)
+
 # Start the server
 if __name__ == '__main__':
     if DEBUG:
         from rest_api.utils import create_tables
-        time.sleep(5)  # Wait for other Postgres to get started before trying to create tables (local dev only)
+        time.sleep(3)  # Wait for other Postgres to get started before trying to create tables (local dev only)
         create_tables()
-    app.run(host='0.0.0.0', port=5555, debug=DEBUG)
+    socketio.run(app=app, host='0.0.0.0', port=5555, debug=DEBUG, use_reloader=True)
