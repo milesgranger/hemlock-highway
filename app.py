@@ -1,6 +1,7 @@
 import os
 
 import stripe
+import time
 
 from flask import Flask
 
@@ -35,5 +36,6 @@ app.register_blueprint(google_blueprint, url_prefix='/login')
 if __name__ == '__main__':
     if DEBUG:
         from rest_api.utils import create_tables
+        time.sleep(5)  # Wait for other Postgres to get started before trying to create tables (local dev only)
         create_tables()
     app.run(host='0.0.0.0', port=5555, debug=DEBUG)

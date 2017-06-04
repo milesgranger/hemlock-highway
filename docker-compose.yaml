@@ -13,10 +13,12 @@ services:
     links:
       - dynamodb-service
       - postgres-service
+      - redis-service
     restart: on-failure
     depends_on:
       - dynamodb-service
       - postgres-service
+      - redis-service
     command:
       #["uwsgi", "--socket", "0.0.0.0:5555", "--protocol=http", "-w", "wsgi:app"]
       [python, app.py]
@@ -27,6 +29,9 @@ services:
       - ./dev.env
     ports:
       - "8000:8000"
+
+  redis-service:
+    image: redis:3.0
 
   postgres-service:
     image: postgres:9.6
