@@ -35,9 +35,9 @@ app.register_blueprint(google_blueprint, url_prefix='/login')
 
 # SocketIO
 socketio = SocketIO(app)
-from rest_api.socketio_hooks import new_connection, submit_model
-socketio.on_event('new-connection', new_connection)
-socketio.on_event('submit-model', submit_model)
+from rest_api.socketio_hooks import NewConnection, ModelSubmission
+socketio.on_event('new-connection', NewConnection)
+socketio.on_event('submit-model', ModelSubmission)
 
 # Start the server
 if __name__ == '__main__':
