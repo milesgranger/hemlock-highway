@@ -10,6 +10,10 @@ $(document).ready(function(){
         socket.emit('new-connection', {data: 'hello from client'});
     });
 
+    socket.on('model-update', function(data){
+        console.log(data['progress']);
+    });
+
 
    $('#runmodel').click(function(){
        socket.emit('submit-model', {datalocation: 'path/to/foo.csv'});

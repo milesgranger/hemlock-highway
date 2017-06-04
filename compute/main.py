@@ -3,6 +3,8 @@ import redis
 import time
 import sys
 
+from ast import literal_eval
+
 if __name__ == '__main__':
     time.sleep(4)  # Wait for redis container to be started
 
@@ -18,7 +20,7 @@ if __name__ == '__main__':
 
         try:
             logger.info('Compute container connecting to Redis..')
-            con = redis.StrictRedis(host='redis-service', port=6379, decode_responses=True)
+            con = redis.StrictRedis(host='redis-service', port=6379)
             logger.info('Compute container successfully connected and running!')
 
             while True:
@@ -26,12 +28,19 @@ if __name__ == '__main__':
                 if records:
                     logger.info('Compute container got records: {}...processing request(s)'.format(records))
 
-                    for job in records:
-                        logger.info('Processing job: {}'.format(job))
+                    for job_id in records:
+                        logger.info('Processing job: {}'.format(job_id))
                         # TODO: Logic to process acquired jobs.
-                        time.sleep(2)
+                        job = con.get(job_id).decode()
+                        job = literal_eval(job)
+
+                        for i in range(10):
+                            job['progress'] = i * 10
+                            con.set(job_id, job)
+                            time.sleep(0.1)
+
                         logger.info('Finished job: {} - Removing from Redis Job Queue...'.format(job))
-                        result = con.delete(job)
+                        result = con.delete(job_id)
                         logger.info('Removed job {} from Redis with code: {}'.format(job, result))
                 else:
                     time.sleep(5)
