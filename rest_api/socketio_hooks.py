@@ -11,7 +11,7 @@ Classes for each SocketIO event which happens on the frontend.
 
 
 class NewConnection:
-    
+
     def __init__(self, message: str) -> None:
         """
         Initialized by 'new-connection' SocketIO event
