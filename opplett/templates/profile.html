@@ -47,7 +47,7 @@
 
             {# Username creation form if first time logging in. #}
             <div class="col-sm-12">
-                {% include 'forms/username_form.html' %}
+                {% include 'forms/username-form.html' %}
             </div>
 
         {% else %}
@@ -56,7 +56,7 @@
             <div class="col-sm-4">
                 <div class="well">
                     {% with form=payment_form %}
-                        {% include 'forms/payment_form.html' %}
+                        {% include 'forms/payment-form.html' %}
                     {% endwith %}
                 </div>
             </div>
@@ -86,7 +86,7 @@
         <div class="row" style="margin-bottom: 2%">
 
             <div class="col-sm-4">
-                {% include 'widgets/upload_widget.html' %}
+                {% include 'widgets/upload-widget.html' %}
             </div>
 
             {# Make directory button. #}
@@ -101,10 +101,10 @@
                 {% endif %}
 
                 {% with form=mkdir_form, username=user.username, directory=directory %}
-                    {% include 'forms/new_directory_form.html' %}
+                    {% include 'forms/new-directory-form.html' %}
                 {% endwith %}
                 {% with form=rmdir_form, username=user.username, directory=directory %}
-                    {% include 'forms/remove_directory_form.html' %}
+                    {% include 'forms/remove-directory-form.html' %}
                 {% endwith %}
 
                 <ul class="breadcrumb" style="margin-top: 2%;">
