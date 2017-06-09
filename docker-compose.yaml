@@ -24,6 +24,17 @@ services:
       [python, app.py]
 
 
+  webpack-service:
+    build: ./docker-core/opplett-webapp/
+    image: opplett/webapp:latest
+    volumes:
+      - ./:/workdir
+    ports:
+      - "8080:8080"
+    command:
+      ["bash", "-c", "npm install && webpack --watch"]
+
+
   compute-service:
     env_file: ./dev.env
     build: ./docker-core/opplett-compute/

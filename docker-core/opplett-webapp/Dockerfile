@@ -16,7 +16,12 @@ RUN pip install s3fs sqlalchemy psycopg2 boto3 flask bokeh uwsgi pynamodb
 RUN pip install redis Flask-Dance Flask-WTF stripe uwsgi peewee
 RUN pip install msgpack-python python-socketio flask-socketio
 
-WORKDIR /workdir
+# Install frontend stuff
+RUN apt install nodejs npm -y
+RUN ln -s /usr/bin/nodejs /usr/bin/node
+ENV PATH $PATH:/usr/bin
+RUN npm install -g webpack
+RUN ldconfig -v
 
-EXPOSE 5555
+WORKDIR /workdir
 
