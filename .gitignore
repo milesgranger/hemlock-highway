@@ -102,3 +102,4 @@ ENV/
 .ropeproject
 /raw_data_persist.sqlite
 /imgs/
+/node_modules/

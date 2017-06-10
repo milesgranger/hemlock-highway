@@ -20,7 +20,7 @@ RUN pip install msgpack-python python-socketio flask-socketio
 RUN apt install nodejs npm -y
 RUN ln -s /usr/bin/nodejs /usr/bin/node
 ENV PATH $PATH:/usr/bin
-RUN npm install -g webpack
+RUN npm install
 RUN ldconfig -v
 
 WORKDIR /workdir

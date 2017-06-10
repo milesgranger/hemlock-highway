@@ -20,7 +20,6 @@ services:
       - postgres-service
       - redis-service
     command:
-      #["uwsgi", "--socket", "0.0.0.0:5555", "--protocol=http", "-w", "wsgi:app"]
       [python, app.py]
 
 
@@ -32,7 +31,7 @@ services:
     ports:
       - "8080:8080"
     command:
-      ["bash", "-c", "npm install && webpack --watch"]
+      [npm, run, webpack-dev-server]
 
 
   compute-service:

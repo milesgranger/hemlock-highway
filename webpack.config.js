@@ -2,16 +2,17 @@
  * Created by milesg on 09.06.17.
  */
 
-var path = require('path');
-var webpack = require('webpack');
+const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
     entry: [
         './src/index.jsx'
     ],
     output: {
-        path: __dirname,
-        filename: 'bundle.js'
+        path: path.resolve(__dirname, 'static', 'js'),
+        filename: 'bundle.js',
+        publicPath: 'static/js/'
     },
     module: {
         loaders: [
@@ -29,7 +30,7 @@ module.exports = {
     },
     devServer: {
         historyApiFallback: true,
-        contentBase: './',
+        contentBase: 'templates/',
         inline: true
     }
 };

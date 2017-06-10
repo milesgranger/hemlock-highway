@@ -6,8 +6,10 @@
   "scripts": {
     "start": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "webpack-dev-server": "webpack-dev-server",
-    "webpack": "node ./node_modules/webpack/bin/webpack.js"
+    "webpack-dev-server": "webpack-dev-server --hot --host 0.0.0.0 --port 8080",
+    "webpack-watch": "webpack --watch",
+    "build": "webpack --production",
+    "build-dev": "webpack"
   },
   "repository": {
     "type": "git",
@@ -26,8 +28,8 @@
     "jsdom": "^8.1.0",
     "mocha": "^2.4.5",
     "react-addons-test-utils": "^0.14.7",
-    "webpack": "^1.12.9",
-    "webpack-dev-server": "^1.14.0"
+    "webpack": "^2.2.0-rc.0",
+    "webpack-dev-server": "^2.4.5"
   },
   "dependencies": {
     "babel-preset-stage-1": "^6.1.18",
