@@ -103,3 +103,5 @@ ENV/
 /raw_data_persist.sqlite
 /imgs/
 /node_modules/
+!/static/js/bundle.js
+/static/js/bundle.js
