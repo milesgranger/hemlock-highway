@@ -45,4 +45,4 @@ if __name__ == '__main__':
         from rest_api.utils import create_tables
         time.sleep(3)  # Wait for other Postgres to get started before trying to create tables (local dev only)
         create_tables()
-    socketio.run(app=app, host='0.0.0.0', port=5555, debug=DEBUG, use_reloader=True)
+    socketio.run(app=app, host='0.0.0.0', port=int(os.environ.get('APP_PORT', 5555)), debug=DEBUG, use_reloader=DEBUG)

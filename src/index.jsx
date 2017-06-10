@@ -13,31 +13,29 @@ class App extends React.Component {
     constructor (props){
         super(props);
         this.state = {authenticated: false};
-        //this.socket = socket.connect('://' + document.domain + ':' + location.port);
-        //this.socket.on('connect', (data) => this.greetServer(data));
+        this.socket = socket.connect('://' + document.domain + ':' + location.port);
     }
     componentDidMount(){
         console.log('App mounted!');
+        this.socket.on('connect', (data) => this.greetServer(data));
     }
     componentWillUnmount(){
         console.log('App exiting');
-        //this.socket.emit('disconnect', 'disconnecting');
+        this.socket.emit('disconnect', 'disconnecting');
     }
     greetServer(data){
-        socket.emit('connected', )
+        this.socket.emit('connected', 'client connected')
     }
     render() {
         return (
             <div>
+
                 <JumboTronComponent/>
                 <FileUpload/>
             </div>
         );
     }
 }
-
-
-
 
 $(document).ready(function(){
     const contentNode = document.getElementById('app');

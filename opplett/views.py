@@ -19,7 +19,7 @@ opplett_blueprint = Blueprint(name='opplett_blueprint',
                               import_name=__name__,
                               template_folder='templates',
                               static_folder='static',
-                              static_url_path='/opplett-static'
+                              static_url_path='/static'
                               )
 
 
@@ -29,8 +29,11 @@ class HomeView(View):
     methods = ['GET']
 
     def dispatch_request(self):
-        return render_template('home.html')
-opplett_blueprint.add_url_rule(rule='/', view_func=HomeView.as_view('home'))
+        return render_template('index.html')
+
+home_view = HomeView.as_view('home')
+opplett_blueprint.add_url_rule(rule='/', view_func=home_view)
+opplett_blueprint.add_url_rule(rule='/home', view_func=home_view)
 
 
 class PaymentView(View):

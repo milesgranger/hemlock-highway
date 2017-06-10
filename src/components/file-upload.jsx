@@ -1,6 +1,48 @@
 import React from 'react';
-import $ from 'jquery';
 
+
+const FileUploadProgress = ({uploadProgress}) => {
+    /*
+    * Show a progress bar given 'progress' between 0 and 100
+    * */
+    return (
+        <div className="progress">
+            <div className="progress-bar" id="progress-bar" role="progressbar" aria-valuenow={uploadProgress}
+                 aria-valuemin="0" aria-valuemax="100" style={{width: uploadProgress + "%"}}>
+                <span className="sr-only">{uploadProgress}% Complete</span>
+            </div>
+        </div>
+    )
+};
+
+const FinishedUploads = ({processedUploads}) => {
+    /*
+    * Show a list of the completed uploads
+    * */
+    return (
+        <div className="js-upload-finished">
+            <h3>Processed files</h3>
+            <div className="list-group" id="processed-files">
+                {processedUploads}
+            </div>
+        </div>
+    )
+};
+
+const ProcessedUpload = ({file, successful, url}) => {
+    // Processed Upload element
+    return(
+        successful ?
+            <a href={url} className="list-group-item list-group-item-success">
+                <span className="badge alert-success pull-right">Success</span>
+                {file.name}<br/>Size (GB): {parseFloat(file.size / 1000000000).toFixed(10)}
+            </a>
+            :
+            <a href="#" className="list-group-item list-group-item-danger">
+                <span className="badge alert-danger pull-right">Failed</span>{file.name}
+            </a>
+    )
+};
 
 class FileDropZone extends React.Component {
     /*
@@ -8,58 +50,40 @@ class FileDropZone extends React.Component {
     * */
     constructor(props){
         super(props);
-        this.state = {hovering: false};
+        this.state = {className: 'upload-drop-zone'};
     }
+
+    handleDrop(e){
+        // Prevent the default submit action, and handle uploading through
+        // the parent component (FileUpload) process.
+        e.preventDefault();
+        this.setState({className: 'upload-drop-zone'});
+        this.props.startUpload(e.dataTransfer.files);
+    }
+
+    handleDragOver(e){
+        e.preventDefault();
+        this.setState({className: 'upload-drop-zone drop'});
+        return false;
+    }
+
+    handleDragLeave(e){
+        e.preventDefault();
+        this.setState({className: 'upload-drop-zone'});
+        return false;
+    }
+
     render(){
         return (
             <div>
                 <h4>Or drag and drop files below</h4>
-                <div className="upload-drop-zone" id="drop-zone">
-                    Just drag and drop files here
-                </div>
-            </div>
-        )
-    }
-}
-
-class FileUploadProgress extends React.Component {
-    /*
-    * Show a progress bar given 'progress' between 0 and 100
-    * */
-    constructor(props){
-        super(props);
-        this.state = {progress: 0};
-    }
-    render(){
-        return (
-            <div className="progress">
-                <div className="progress-bar" id="progress-bar" role="progressbar" aria-valuenow={this.state.progress}
-                     aria-valuemin="0" aria-valuemax="100" style={{width: this.state.progress + "%"}}>
-                    <span className="sr-only">{this.state.progress}% Complete</span>
-                </div>
-            </div>
-        )
-    }
-}
-
-class FinishedUploads extends React.Component {
-    /*
-    * Show a list of the completed uploads
-    * */
-    constructor(props){
-        super(props);
-        this.state = {};
-    }
-
-    render(){
-        return (
-            <div className="js-upload-finished">
-                <h3>Processed files</h3>
-                <div className="list-group" id="processed-files">
-                    <a href="#" className="list-group-item list-group-item-success"><span
-                        className="badge alert-success pull-right">Success</span>image-01.jpg</a>
-                    <a href="#" className="list-group-item list-group-item-success"><span
-                        className="badge alert-success pull-right">Success</span>image-02.jpg</a>
+                <div
+                    onDragOver={(e) => this.handleDragOver(e)}
+                    onDragLeave={(e) => this.handleDragLeave(e)}
+                    onDrop={(e) => this.handleDrop(e)}
+                    className={this.state.className}
+                >
+                    Just drag and drop files here!
                 </div>
             </div>
         )
@@ -73,21 +97,32 @@ class FileUpload extends React.Component {
     * */
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {
+            uploadProgress: 0,
+            processedUploads: []
+        };
     }
+
+    updateProccessedFiles(file, url, successful){
+        // Appends either a failure or success link to the file which was uploaded/failed
+        let currentUploads = this.state.processedUploads;
+        currentUploads.push(<ProcessedUpload key={file.name} file={file} successful={successful} url={url}/>);
+        this.setState({processedUploads: currentUploads});
+    }
+
     uploadFile(file, s3Data, url){
 
         // Given response from server, do the actual uploading of the file given the presigned dat
-        $('#progress-bar').attr('aria-valuenow', "5").css('width', '5%');
+        this.setState({uploadProgress: 5});
 
         // Define the new request object
         const xhr = new XMLHttpRequest();
 
         // Listener to update the progress bar.
-        xhr.upload.addEventListener("progress", function(evt){
+        xhr.upload.addEventListener("progress", (evt) => {
             if (evt.lengthComputable) {
                 let percentComplete = parseInt( (evt.loaded / evt.total) * 100 );
-                $('#progress-bar').attr('aria-valuenow', percentComplete).css('width', percentComplete + '%');
+                this.setState({uploadProgress: percentComplete});
             }
         });
 
@@ -104,19 +139,20 @@ class FileUpload extends React.Component {
         postData.append('file', file);
 
         // Update the list with success or failure of files.
-        xhr.onreadystatechange = function(){
+        xhr.onreadystatechange = () => {
             if(xhr.readyState === 4) {
                 if (xhr.status === 200 || xhr.status === 204) {
-                    updateProccessedFiles(file, url, true);
+                    this.updateProccessedFiles(file, url, true);
                 }
                 else {
                     console.log('Could not upload the file! XHR Status: ' + xhr.status);
-                    updateProccessedFiles(file, url, false);
+                    this.updateProccessedFiles(file, url, false);
                 }
             }
         };
         xhr.send(postData);
     }
+
     getSignedRequest(file){
 
         // Fetch presigned data from the server for this file
@@ -139,12 +175,20 @@ class FileUpload extends React.Component {
         }.bind(this);
         xhr.send();
     }
+
     startUpload(files){
         // Send each file to the pipeline of uploading files
-        for (var i = 0; i < files.length; i++) {
+        for (let i = 0; i < files.length; i++) {
             this.getSignedRequest(files[i]);
         }
     }
+
+    handleSubmit(e){
+        e.preventDefault();
+        let files = document.getElementById('js-upload-files').files;
+        this.startUpload(files);
+    }
+
     render(){
         return (
             <div id="file-upload">
@@ -152,27 +196,23 @@ class FileUpload extends React.Component {
                     <div className="panel-heading"><strong>Upload Files</strong></div>
                     <div className="panel-body">
 
-                        /*Form to manually select files from computer*/
                         <h4>Select files from your computer</h4>
-                        <form action="" method="post" encType="multipart/form-data" id="js-upload-form">
+                        <form action="" method="post" encType="multipart/form-data" id="js-upload-form" onSubmit={(e) => this.handleSubmit(e)}>
                             <div className="form-inline">
                                 <div className="form-group">
                                     <input type="file" name="files[]" id="js-upload-files" multiple/>
                                 </div>
-                                <button type="submit" className="btn btn-sm btn-primary" id="js-upload-submit">Upload
-                                    files
+                                <button type="submit" className="btn btn-sm btn-primary" id="js-upload-submit">
+                                    Upload files
                                 </button>
                             </div>
                         </form>
 
-                        /*File drop zone*/
-                        <FileDropZone/>
+                        <FileDropZone startUpload={(files) => this.startUpload(files)}/>
 
-                        /*File upload progress bar*/
-                        <FileUploadProgress/>
+                        <FileUploadProgress uploadProgress={this.state.uploadProgress}/>
 
-                        /*List of finished files*/
-                        <FinishedUploads/>
+                        <FinishedUploads processedUploads={this.state.processedUploads}/>
                     </div>
                 </div>
             </div>

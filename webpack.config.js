@@ -31,6 +31,13 @@ module.exports = {
     devServer: {
         historyApiFallback: true,
         contentBase: './templates',
-        inline: true
+        inline: true,
+        proxy: [
+            {
+                path: '/**',
+                target: 'http://webapp-service:5555',
+                changeOrigin: true
+            }
+        ]
     }
 };

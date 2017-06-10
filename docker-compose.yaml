@@ -30,6 +30,8 @@ services:
       - ./:/workdir
     ports:
       - "8080:8080"
+    links:
+      - webapp-service
     command:
       ["bash", "-c", "npm install --save --save-dev && npm run webpack-dev-server"]
 
