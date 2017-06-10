@@ -2,7 +2,7 @@ import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import JumboTronComponent from './components/home/welcome-jumbotron';
-
+import FileUpload from './components/file-upload';
 
 class App extends React.Component {
 
@@ -11,9 +11,18 @@ class App extends React.Component {
         this.state = {authenticated: false};
     }
 
+    componentDidMount(){
+
+    }
+
+
     render() {
         return (
-            <JumboTronComponent/>
+            <div>
+                <JumboTronComponent/>
+                <FileUpload/>
+            </div>
+
         )
     }
 }

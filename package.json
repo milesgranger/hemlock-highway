@@ -4,12 +4,9 @@
   "description": "Data BI Web Utility",
   "main": "webpack.config.js",
   "scripts": {
-    "start": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "webpack-dev-server": "webpack-dev-server --hot --host 0.0.0.0 --port 8080",
-    "webpack-watch": "webpack --watch",
-    "build": "webpack --production",
-    "build-dev": "webpack"
+    "webpack-dev-server": "webpack-dev-server --host 0.0.0.0 --hot ",
+    "webpack": "webpack"
   },
   "repository": {
     "type": "git",
@@ -29,7 +26,8 @@
     "mocha": "^2.4.5",
     "react-addons-test-utils": "^0.14.7",
     "webpack": "^2.2.0-rc.0",
-    "webpack-dev-server": "^2.4.5"
+    "webpack-dev-server": "^2.4.5",
+    "socket.io-client": "^2.0.2"
   },
   "dependencies": {
     "babel-preset-stage-1": "^6.1.18",
@@ -38,7 +36,8 @@
     "react-dom": "^0.14.3",
     "react-redux": "4.3.0",
     "react-router": "^2.0.1",
-    "redux": "^3.0.4"
+    "redux": "^3.0.4",
+    "socket.io-client": "^2.0.2"
   },
   "bugs": {
     "url": "https://github.com/milesgranger/hemlock-highway/issues"

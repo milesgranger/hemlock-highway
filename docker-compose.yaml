@@ -31,7 +31,7 @@ services:
     ports:
       - "8080:8080"
     command:
-      [npm, run, webpack-dev-server]
+      ["bash", "-c", "npm install --save --save-dev && npm run webpack-dev-server"]
 
 
   compute-service:
