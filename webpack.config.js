@@ -35,7 +35,7 @@ module.exports = {
         proxy: [
             {
                 path: '/**',
-                target: 'http://webapp-service:5555',
+                target: 'http://webapp-service.io:5555',
                 changeOrigin: true
             }
         ]

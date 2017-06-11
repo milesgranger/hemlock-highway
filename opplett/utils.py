@@ -4,6 +4,8 @@ from flask import redirect, url_for, current_app
 from flask_dance.contrib.google import google
 
 
+
+
 class User:
     """
     Representation of an OAuth user
@@ -17,7 +19,6 @@ class User:
 
 
 def get_user_via_oauth():
-
     # Ensure user is validated first; otherwise return to OAuth login
     try:
         if not google.authorized:

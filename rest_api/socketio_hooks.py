@@ -12,19 +12,20 @@ Classes for each SocketIO event which happens on the frontend.
 
 class NewConnection:
 
-    def __init__(self, message: str) -> None:
+    def __init__(self, message: dict) -> None:
         """
         Initialized by 'new-connection' SocketIO event
         Handle dealing with when a new client in connected
         """
-        self.new_connection(message=message)
+        self.new_connection(message)
 
-    @staticmethod
-    def new_connection(message: str) -> None:
+
+    def new_connection(self, message: dict) -> None:
         """
         Notification of a new client connection
         """
         current_app.logger.info('Recieved connection from client: {}'.format(message))
+        emit('server-message', {'alertType': 'alert-success', 'message': 'Welcome to Opplett.io!'})
 
 
 class ModelSubmission:

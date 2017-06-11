@@ -2,9 +2,10 @@ import stripe
 import os
 import time
 import peewee as pw
-import pickle
 import json
+import bcrypt
 
+from datetime import datetime
 from .utils import get_user_via_oauth, list_files_and_folders, get_s3fs, build_bread_crumbs
 from .forms import UserNameForm, PaymentForm, NewDirectoryForm, RemoveDirectoryForm
 from rest_api.models import UserModel, PaymentModel, POSTGRES_DB
@@ -13,6 +14,7 @@ from flask.blueprints import Blueprint
 from flask import (render_template, redirect, url_for, send_from_directory, jsonify,
                    current_app, request, flash)
 from flask.views import View
+from flask_dance.contrib.google import google
 
 
 opplett_blueprint = Blueprint(name='opplett_blueprint',
@@ -29,7 +31,17 @@ class HomeView(View):
     methods = ['GET']
 
     def dispatch_request(self):
-        return render_template('index.html')
+        context = {
+            'authenticated_status': True,
+            'authenticated_user': 'milesg',
+            'authenticated_token': bcrypt.kdf(b'milesg',
+                                              salt=bytes('{}{}'.format(os.environ.get('SECRET_KEY'),
+                                                                       datetime.now().day).encode()),
+                                              rounds=50,
+                                              desired_key_bytes=25
+                                              )
+        }
+        return render_template('index.html', **context)
 
 home_view = HomeView.as_view('home')
 opplett_blueprint.add_url_rule(rule='/', view_func=home_view)
@@ -199,6 +211,8 @@ opplett_blueprint.add_url_rule('/user/<username>/<path:directory>', view_func=pr
 
 
 class LoginView(View):
+
+    methods = ['GET', 'POST']
 
     def dispatch_request(self):
         return self.login()

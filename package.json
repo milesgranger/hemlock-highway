@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "webpack-dev-server": "webpack-dev-server --host 0.0.0.0 --hot ",
-    "webpack": "webpack"
+    "webpack-watch": "webpack --watch"
   },
   "repository": {
     "type": "git",

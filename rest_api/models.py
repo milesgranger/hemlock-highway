@@ -8,6 +8,8 @@ from pynamodb.models import Model
 from pynamodb.attributes import UnicodeAttribute, UTCDateTimeAttribute, JSONAttribute
 from datetime import datetime
 from redis import StrictRedis
+from flask_dance.contrib.google import google
+from flask import redirect, url_for
 
 
 POSTGRES_DB = pw.PostgresqlDatabase(database=os.environ.get('POSTGRES_DB'),

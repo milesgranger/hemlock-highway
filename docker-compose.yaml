@@ -2,7 +2,7 @@ version: '3'
 
 services:
 
-  webapp-service:
+  webapp-service.io:
     env_file: ./dev.env
     build: ./docker-core/opplett-webapp/
     image: opplett/webapp:latest
@@ -23,7 +23,7 @@ services:
       [python, app.py]
 
 
-  webpack-service:
+  webpack-dev-server-service:
     build: ./docker-core/opplett-webapp/
     image: opplett/webapp:latest
     volumes:
@@ -31,9 +31,20 @@ services:
     ports:
       - "8080:8080"
     links:
-      - webapp-service
+      - webapp-service.io
     command:
       ["bash", "-c", "npm install --save --save-dev && npm run webpack-dev-server"]
+
+
+  webpack-watch-service:
+    build: ./docker-core/opplett-webapp/
+    image: opplett/webapp:latest
+    volumes:
+      - ./:/workdir
+    links:
+      - webapp-service.io
+    command:
+      ["bash", "-c", "npm install --save --save-dev && npm run webpack-watch"]
 
 
   compute-service:

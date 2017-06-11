@@ -4,6 +4,10 @@
 
     <title>Opplett.io - Home</title>
 
+    <meta id="authenticated-status" content="{{ authenticated_status or False}}">
+    <meta id="authenticated-user" content="{{ authenticated_user or None }}">
+    <meta id="authenticated-token" content="{{ authenticated_token or None }}">
+
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta http-equiv="X-UA-COMPATIBLE" content="IE=edge">
@@ -27,43 +31,7 @@
 <body>
 
 
-<nav class="navbar navbar-inverse">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
-                    aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="/">Opplett.io</a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-            <a href="/login" role="button" class="btn btn-success navbar-right">Sign in</a>
-        </div><!--/.navbar-collapse -->
-    </div>
-</nav>
-
-<div class="container">
-
-    <div class="row">
-        <div class="col-sm-12">
-            <ul>
-                <div class="alert alert-success alert-dismissable">
-                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                    Success!
-                    Success test message!
-                </div>
-            </ul>
-        </div>
-    </div>
-
-
-
     <div id="app"></div>
-
-
 
     <!-- Site footer -->
     <div class="row">
@@ -74,9 +42,6 @@
             </footer>
         </div>
     </div>
-
-
-</div> <!-- /container -->
 
 </body>
 </html>
