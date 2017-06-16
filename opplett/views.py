@@ -19,7 +19,7 @@ opplett_blueprint = Blueprint(name='opplett_blueprint',
 
 
 class HomeView(View):
-    """View for the home page"""
+    """View for the home-page-components page"""
 
     methods = ['GET']
 
@@ -36,9 +36,9 @@ class HomeView(View):
         }
         return render_template('index.html', **context)
 
-home_view = HomeView.as_view('home')
+home_view = HomeView.as_view('home-page-components')
 opplett_blueprint.add_url_rule(rule='/', view_func=home_view)
-opplett_blueprint.add_url_rule(rule='/home', view_func=home_view)
+opplett_blueprint.add_url_rule(rule='/home-page-components', view_func=home_view)
 
 
 @opplett_blueprint.route('/list-files')

@@ -2,8 +2,9 @@ import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import socket from 'socket.io-client';
-import JumboTronComponent from './components/home/welcome-jumbotron';
+import JumboTronComponent from './components/home-page-components/welcome-jumbotron';
 import FileUpload from './components/file-upload';
+import ModelBuilder from './components/model-builder';
 import NavBar from './components/nav-bar';
 import MessageList from './components/user-messages';
 
@@ -48,7 +49,7 @@ class App extends React.Component {
         this.socket.emit('disconnect', 'disconnecting');
     }
 
-    greetServer(data){
+    greetServer(){
         this.socket.emit('connected', 'client connected')
     }
 
@@ -59,7 +60,7 @@ class App extends React.Component {
                 <div className="container">
                     <MessageList messages={this.state.messages}/>
                     <JumboTronComponent/>
-                    <FileUpload/>
+                    <ModelBuilder/>
                 </div>
             </div>
         );

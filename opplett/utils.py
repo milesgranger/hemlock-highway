@@ -56,7 +56,7 @@ def list_files_and_folders(username, path=''):
 def build_bread_crumbs(path):
     """
     Build a list of lists which looks like [[basename_of_folder, path_to_folder], ...]
-    In order where 0th element is path to user's home directory, next would be [folder1, username/folder1]
+    In order where 0th element is path to user's home-page-components directory, next would be [folder1, username/folder1]
     :param path: The path to build crumbs for.
     """
     crumbs = []
