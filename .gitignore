@@ -105,3 +105,6 @@ ENV/
 /node_modules/
 !/static/js/bundle.js
 /static/js/bundle.js
+/opplett/static/js/bundle.js
+opplett/static/js/
+!/opplett/static/js/

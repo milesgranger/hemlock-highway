@@ -1,33 +1,15 @@
 import s3fs
 import os
-from flask import redirect, url_for, current_app
-from flask_dance.contrib.google import google
+from opplett.models import UserModel, PaymentModel
+from opplett.models import POSTGRES_DB
 
 
-
-
-class User:
-    """
-    Representation of an OAuth user
-    Data is the json acquired from successful authentication via an OAuth service. Google, etc.
-    """
-    def __init__(self, data, source):
-        if source == 'google':
-            self.name = data.get('name')
-            self.profile_img = data.get('picture')
-            self.email = data.get('email')
-
-
-def get_user_via_oauth():
-    # Ensure user is validated first; otherwise return to OAuth login
-    try:
-        if not google.authorized:
-            return redirect(url_for('google.login'))
-        resp = google.get('/oauth2/v2/userinfo')
-        # Get google info about user
-        return User(resp.json(), source='google')
-    except:
-        return redirect(url_for('google.login'))
+def create_tables():
+    """Debug helper method."""
+    POSTGRES_DB.connect()
+    POSTGRES_DB.create_tables([UserModel, PaymentModel], safe=True)
+    POSTGRES_DB.close()
+    return True
 
 
 def get_s3fs():

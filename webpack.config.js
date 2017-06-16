@@ -10,7 +10,7 @@ module.exports = {
         './src/index.jsx'
     ],
     output: {
-        path: path.resolve(__dirname, 'static', 'js'),
+        path: path.resolve(__dirname, 'opplett', 'static', 'js'),
         filename: 'bundle.js',
         publicPath: 'static/js/'
     },
@@ -30,7 +30,7 @@ module.exports = {
     },
     devServer: {
         historyApiFallback: true,
-        contentBase: './templates',
+        contentBase: './opplett/templates',
         inline: true,
         proxy: [
             {

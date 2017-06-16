@@ -1,9 +1,11 @@
-import time
 import ast
 import random
+import time
+
 from flask import current_app
-from .models import get_redis_con
 from flask_socketio import emit
+
+from opplett.models import get_redis_con
 
 """
 Classes for each SocketIO event which happens on the frontend.

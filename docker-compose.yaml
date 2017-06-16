@@ -11,12 +11,10 @@ services:
     ports:
       - "5555:5555"
     links:
-      - dynamodb-service
       - postgres-service
       - redis-service
     restart: on-failure
     depends_on:
-      - dynamodb-service
       - postgres-service
       - redis-service
     command:
@@ -55,14 +53,6 @@ services:
       - ./:/workdir
     command:
       [python, ./compute/main.py]
-
-
-  dynamodb-service:
-    image: peopleperhour/dynamodb
-    env_file:
-      - ./dev.env
-    ports:
-      - "8000:8000"
 
 
   redis-service:

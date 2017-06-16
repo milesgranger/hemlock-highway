@@ -1,5 +1,5 @@
 from app import app
-from rest_api.models import POSTGRES_DB
+from opplett.models import POSTGRES_DB
 
 
 @app.before_request
