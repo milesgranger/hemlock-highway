@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import socket from 'socket.io-client';
@@ -67,7 +66,7 @@ class App extends React.Component {
     }
 }
 
-$(document).ready(function(){
+document.addEventListener("DOMContentLoaded", function(event){
     const contentNode = document.getElementById('app');
     ReactDOM.render(<App/>, contentNode);
 });
