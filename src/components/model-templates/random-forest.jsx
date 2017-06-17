@@ -4,12 +4,12 @@ export default class RandomForestModel extends React.Component {
 
     constructor(props){
         super(props);
-        this.state = {};
+        this.state = {submittable: true};
     }
 
     render(){
         return (
-            <div>
+            <div className="col-sm-10 col-sm-offset-2"> {/* This div is inserted into a row class*/}
                 <span>Random Forest Template</span>
                 <div className="form-group">
 

@@ -6,6 +6,7 @@ services:
     env_file: ./dev.env
     build: ./docker-core/opplett-webapp/
     image: opplett/webapp:latest
+    container_name: webapp-service
     volumes:
       - ./:/workdir
     ports:
@@ -24,6 +25,7 @@ services:
   webpack-dev-server-service:
     build: ./docker-core/opplett-webapp/
     image: opplett/webapp:latest
+    container_name: webpack-dev-server-service
     volumes:
       - ./:/workdir
     ports:
@@ -37,6 +39,7 @@ services:
   webpack-watch-service:
     build: ./docker-core/opplett-webapp/
     image: opplett/webapp:latest
+    container_name: webpack-watch-service
     volumes:
       - ./:/workdir
     links:
@@ -49,6 +52,7 @@ services:
     env_file: ./dev.env
     build: ./docker-core/opplett-compute/
     image: opplett/compute:latest
+    container_name: compute-service
     volumes:
       - ./:/workdir
     command:
@@ -57,10 +61,12 @@ services:
 
   redis-service:
     image: redis:3.0
+    container_name: redis-service
 
 
   postgres-service:
     image: postgres:9.6
+    container_name: postgres-service
     env_file: ./dev.env
     ports:
       - "5432:5432"

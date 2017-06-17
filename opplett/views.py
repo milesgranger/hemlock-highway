@@ -6,9 +6,12 @@ import s3fs
 from datetime import datetime
 from flask import render_template
 from flask.blueprints import Blueprint
-from flask.views import View
+from flask.views import View, MethodView
 from botocore.client import Config
 from flask import request, current_app, jsonify
+
+from opplett.models import get_redis_con
+
 
 opplett_blueprint = Blueprint(name='opplett_blueprint',
                               import_name=__name__,
@@ -36,9 +39,38 @@ class HomeView(View):
         }
         return render_template('index.html', **context)
 
-home_view = HomeView.as_view('home-page-components')
+home_view = HomeView.as_view('HomeView')
 opplett_blueprint.add_url_rule(rule='/', view_func=home_view)
 opplett_blueprint.add_url_rule(rule='/home-page-components', view_func=home_view)
+
+
+class ModelSubmission(MethodView):
+    """
+    View to take model submission requests and send off to get processed.
+    Takes GET requests to provide updates to the running job.
+    """
+    methods = ['GET', 'POST']
+
+    def get(self):
+        return jsonify({'echo': True})
+
+    def post(self):
+        data = request.get_json()
+        current_app.logger.info('Submitting model request: {}'.format(data))
+        self.submit_model_request(data=data)
+        return jsonify({'job-id': 23493802})
+
+    def submit_model_request(self, data):
+        """Submit json data of model architecture to process"""
+        redis = get_redis_con()
+        redis.set('job-id-123', data)
+        if not os.environ.get('DEBUG', False):
+            # TODO (Miles) Start submit the job to the Batch pipeline with corresponding job code.
+            pass
+        return True
+
+model_submission_view = ModelSubmission.as_view('model-submission-view')
+opplett_blueprint.add_url_rule(rule='/model-submission', view_func=model_submission_view)
 
 
 @opplett_blueprint.route('/list-files')

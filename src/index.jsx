@@ -18,23 +18,10 @@ class App extends React.Component {
             authenticatedUser: document.getElementById('authenticated-user').getAttribute('content'),
             messages: []  // List of object w/ keys "alertType" and "message" where alertType is bootstrap alert type. ie. alert-success
         };
-        // TODO (Miles) Find a way to change connection endpoint depending on debug or otherwise
-        this.socket = socket.connect('//webapp-service.io:5555');
-        //this.socket = socket.connect('//' + document.domain + ':' + location.port);
     }
 
     componentDidMount(){
         console.log('App mounted!');
-        this.socket.on('connect', () => {
-            this.socket.emit('new-connection', {
-                authenticatedStatus: this.state.authenticatedStatus,
-                authenticatedUser: this.state.authenticatedUser
-            });
-            console.log('Sent greeting to server!');
-        });
-        //this.socket.emit('submit-model', 'please-submit');
-        this.socket.on('model-update', console.log);
-        this.socket.on('server-message', (message) => this.handleServerMessage(message))
     }
 
     handleServerMessage(message){
@@ -45,11 +32,6 @@ class App extends React.Component {
 
     componentWillUnmount(){
         console.log('App exiting');
-        this.socket.emit('disconnect', 'disconnecting');
-    }
-
-    greetServer(){
-        this.socket.emit('connected', 'client connected')
     }
 
     render() {
