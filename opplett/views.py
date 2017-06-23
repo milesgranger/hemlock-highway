@@ -3,6 +3,8 @@ import bcrypt
 import boto3
 import s3fs
 
+import pandas as pd
+
 from datetime import datetime
 from flask import render_template
 from flask.blueprints import Blueprint
@@ -148,3 +150,9 @@ def sign_s3():
                     'url': 'https://{}.s3.amazonaws.com/test-folder/{}/'.format(os.environ.get('S3_BUCKET'),
                                                                    file_name)
                     })
+
+
+@opplett_blueprint.route('/get-data')
+def get_data():
+    df = pd.read_csv(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data', 'data.csv'))[:10]
+    return jsonify(df.to_dict('records'))

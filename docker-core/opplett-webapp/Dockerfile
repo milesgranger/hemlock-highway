@@ -15,13 +15,12 @@ RUN pip install --upgrade pip
 RUN pip install s3fs sqlalchemy psycopg2 boto3 flask bokeh uwsgi pynamodb
 RUN pip install redis Flask-Dance Flask-WTF stripe uwsgi peewee
 RUN pip install msgpack-python python-socketio flask-socketio
-RUN conda install bcrypt -y
+RUN conda install bcrypt pandas numpy -y
 
 # Install frontend stuff
 RUN apt install nodejs npm -y
 RUN ln -s /usr/bin/nodejs /usr/bin/node
 ENV PATH $PATH:/usr/bin
-RUN npm install
 RUN ldconfig -v
 
 WORKDIR /workdir

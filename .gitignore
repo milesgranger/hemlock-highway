@@ -108,3 +108,4 @@ ENV/
 /opplett/static/js/bundle.js
 opplett/static/js/
 !/opplett/static/js/
+/opplett/data/data.csv
