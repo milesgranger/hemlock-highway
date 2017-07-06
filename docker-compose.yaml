@@ -4,7 +4,9 @@ services:
 
   webapp-service.io:
     env_file: ./dev.env
-    build: ./docker-core/opplett-webapp/
+    build: 
+        dockerfile: ./docker-core/opplett-webapp/Dockerfile
+        context: ./
     image: opplett/webapp:latest
     container_name: webapp-service
     volumes:
@@ -23,7 +25,9 @@ services:
 
 
   webpack-dev-server-service:
-    build: ./docker-core/opplett-webapp/
+    build: 
+        dockerfile: ./docker-core/opplett-webapp/Dockerfile
+        context: ./
     image: opplett/webapp:latest
     container_name: webpack-dev-server-service
     volumes:
@@ -33,11 +37,13 @@ services:
     links:
       - webapp-service.io
     command:
-      ["bash", "-c", "npm install --save --save-dev && npm run webpack-dev-server"]
-
+      #["bash", "-c", "npm install --save --save-dev && npm run webpack-dev-server"]
+        [npm, run, webpack-dev-server]
 
   webpack-watch-service:
-    build: ./docker-core/opplett-webapp/
+    build:
+        dockerfile: ./docker-core/opplett-webapp/Dockerfile
+        context: ./
     image: opplett/webapp:latest
     container_name: webpack-watch-service
     volumes:
@@ -45,8 +51,8 @@ services:
     links:
       - webapp-service.io
     command:
-      ["bash", "-c", "npm install --save --save-dev && npm run webpack-watch"]
-
+      #["bash", "-c", "npm install --save --save-dev && npm run webpack-watch"]
+        [npm, run, webpack-watch]
 
   compute-service:
     env_file: ./dev.env

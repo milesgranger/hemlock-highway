@@ -25,3 +25,6 @@ RUN ldconfig -v
 
 WORKDIR /workdir
 
+COPY ./package.json ./
+RUN npm install --save --save-dev
+
