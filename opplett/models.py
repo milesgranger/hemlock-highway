@@ -24,6 +24,9 @@ def get_redis_con() -> StrictRedis:
 
 
 class BaseModel(pw.Model):
+    """
+    Establish the database connection for all other models.
+    """
     class Meta:
         database = POSTGRES_DB
 
@@ -33,7 +36,7 @@ class UserModel(BaseModel):
     PostgreSQL User Table
     """
     class Meta:
-        db_table = 'ol_user'
+        db_table = 'ol_users'
 
     username = pw.CharField(max_length=255, primary_key=True, unique=True, null=False)
     email = pw.CharField(max_length=255, unique=True, null=False)
@@ -49,7 +52,7 @@ class PaymentModel(BaseModel):
     Saves all payments
     """
     class Meta:
-        db_table = 'ol_payment'
+        db_table = 'ol_payments'
 
     username = pw.ForeignKeyField(UserModel, related_name='payments')
     id = pw.CharField(null=True, primary_key=True)

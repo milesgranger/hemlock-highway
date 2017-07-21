@@ -1,18 +1,21 @@
 import s3fs
 import os
+
+from typing import Tuple, List
 from opplett.models import UserModel, PaymentModel
 from opplett.models import POSTGRES_DB
 
 
 def create_tables():
-    """Debug helper method."""
+    """
+    Debug helper method: All setup goes here.
+    """
     POSTGRES_DB.connect()
     POSTGRES_DB.create_tables([UserModel, PaymentModel], safe=True)
     POSTGRES_DB.close()
-    return True
 
 
-def get_s3fs():
+def get_s3fs() -> s3fs.S3FileSystem:
     """
     Convenience method, Return connected s3fs object
     """
@@ -22,21 +25,26 @@ def get_s3fs():
     return fs
 
 
-def list_files_and_folders(username, path=''):
+def list_files_and_folders(username, path='') -> Tuple[List[str], List[str]]:
     """
-    Given username and option path, return file details
+    Given username and option path, return file details.
+    :returns - Tuple containing a list of folders, and list of files.
     """
+
+    # Get s3 and list the files given username and path.
     fs = get_s3fs()
     files = fs.ls('{bucket}/{username}/{path}'.format(bucket=os.environ.get('S3_BUCKET'),
                                                       username=username,
                                                       path=path),
                   detail=True)
+
+    # format the files with the name of the file and build a link to that file
     for file in files:
         file['Name'] = os.path.basename(file['Key'])
-        #file['LocalLink'] = '/'.join([p for p in [path, file.get('Name')] if p])
         file['LocalLink'] = file.get('Key').replace('{bucket}/{username}/'.format(bucket=os.environ.get('S3_BUCKET'),
                                                                                   username=username), '')
 
+    # Sort the files by name and if it is a directory.
     folders_tmp = sorted([f for f in files if not f.get('Size') or f.get('StoargeClass') == 'DIRECTORY'],
                          key=lambda d: d.get('StorageClass'),
                          reverse=False)
@@ -49,6 +57,7 @@ def list_files_and_folders(username, path=''):
             folders.append(folder)
             last_key = folder.get('Key')
 
+    # Remove directories from files, as specified by no size.
     files = sorted([file for file in files if file.get('Size')], key=lambda dic: dic.get('Size'))
     return folders, files
 

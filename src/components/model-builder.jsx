@@ -22,6 +22,9 @@ export default class ModelBuilder extends React.Component {
     }
 
     handleSubmit(event){
+        /*
+        * Submits the model form. Contains meta-data on the model, data modification, and where to get the data.
+        * */
         console.log('Preventing default');
         event.preventDefault();
         console.log('Submitting this data: ' + this.state.modelData);

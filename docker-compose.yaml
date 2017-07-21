@@ -2,6 +2,7 @@ version: '3'
 
 services:
 
+  # Core web app service.
   webapp-service.io:
     env_file: ./dev.env
     build: 
@@ -24,6 +25,7 @@ services:
       [python, app.py]
 
 
+  # Service to run the webpack server
   webpack-dev-server-service:
     build: 
         dockerfile: ./docker-core/opplett-webapp/Dockerfile
@@ -37,9 +39,10 @@ services:
     links:
       - webapp-service.io
     command:
-      #["bash", "-c", "npm install --save --save-dev && npm run webpack-dev-server"]
-        [npm, run, webpack-dev-server]
+      [npm, run, webpack-dev-server]
 
+
+  # Service to run the webpack watch, repackage changes made to JS files.
   webpack-watch-service:
     build:
         dockerfile: ./docker-core/opplett-webapp/Dockerfile
@@ -51,9 +54,10 @@ services:
     links:
       - webapp-service.io
     command:
-      #["bash", "-c", "npm install --save --save-dev && npm run webpack-watch"]
-        [npm, run, webpack-watch]
+      [npm, run, webpack-watch]
 
+
+  # Imitation service to simulate AWS Batch for processing ML jobs
   compute-service:
     env_file: ./dev.env
     build: ./docker-core/opplett-compute/
@@ -65,11 +69,13 @@ services:
       [python, ./compute/main.py]
 
 
+  # Redis service for acting as message broker on ML job status.
   redis-service:
     image: redis:3.0
     container_name: redis-service
 
 
+  # Postgres service - Used for Users, Payments, and general data storage.
   postgres-service:
     image: postgres:9.6
     container_name: postgres-service

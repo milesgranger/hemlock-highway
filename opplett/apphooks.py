@@ -1,6 +1,11 @@
 from app import app
 from opplett.models import POSTGRES_DB
 
+"""
+All methods to be called by the app itself.
+This includes error and before/after handlers.
+"""
+
 
 @app.before_request
 def before_request():
