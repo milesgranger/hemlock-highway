@@ -16,6 +16,7 @@ RUN pip install s3fs sqlalchemy psycopg2 boto3 flask bokeh uwsgi pynamodb
 RUN pip install redis Flask-Dance Flask-WTF stripe uwsgi peewee
 RUN pip install msgpack-python python-socketio flask-socketio
 RUN conda install bcrypt pandas numpy -y
+RUN pip install --upgrade google-api-python-client
 
 # Install frontend stuff
 RUN apt install nodejs npm -y

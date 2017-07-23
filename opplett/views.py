@@ -13,6 +13,7 @@ from botocore.client import Config
 from flask import request, current_app, jsonify
 
 from opplett.models import get_redis_con
+from opplett.pluggable_views.user_auth import UserAuthorization
 
 
 opplett_blueprint = Blueprint(name='opplett_blueprint',
@@ -44,6 +45,10 @@ class HomeView(View):
 home_view = HomeView.as_view('HomeView')
 opplett_blueprint.add_url_rule(rule='/', view_func=home_view)
 opplett_blueprint.add_url_rule(rule='/home-page-components', view_func=home_view)
+
+# Register user login view
+user_auth_view = UserAuthorization.as_view('user-authorization')
+opplett_blueprint.add_url_rule(rule='/login', view_func=user_auth_view)
 
 
 class ModelSubmission(MethodView):
