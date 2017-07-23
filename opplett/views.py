@@ -1,20 +1,14 @@
 import os
-import bcrypt
 import boto3
 import s3fs
 
 import pandas as pd
 
-from datetime import datetime
-from flask import render_template
 from flask.blueprints import Blueprint
-from flask.views import View, MethodView
 from botocore.client import Config
 from flask import request, current_app, jsonify
 
-from opplett.models import get_redis_con
-from opplett.pluggable_views.user_auth import UserAuthorization
-
+from opplett.pluggable_views import UserAuthorizationAPI, HomeView, ModelSubmissionAPI, UserProfileAPI
 
 opplett_blueprint = Blueprint(name='opplett_blueprint',
                               import_name=__name__,
@@ -23,60 +17,21 @@ opplett_blueprint = Blueprint(name='opplett_blueprint',
                               static_url_path='/static'
                               )
 
-
-class HomeView(View):
-    """View for the home-page-components page"""
-
-    methods = ['GET']
-
-    def dispatch_request(self):
-        context = {
-            'authenticated_status': True,
-            'authenticated_user': 'milesg',
-            'authenticated_token': bcrypt.kdf(b'milesg',
-                                              salt=bytes('{}{}'.format(os.environ.get('SECRET_KEY'),
-                                                                       datetime.now().day).encode()),
-                                              rounds=50,
-                                              desired_key_bytes=25
-                                              )
-        }
-        return render_template('index.html', **context)
-
+# Register the homepage view
 home_view = HomeView.as_view('HomeView')
 opplett_blueprint.add_url_rule(rule='/', view_func=home_view)
 opplett_blueprint.add_url_rule(rule='/home-page-components', view_func=home_view)
 
-# Register user login view
-user_auth_view = UserAuthorization.as_view('user-authorization')
+# Register the user login API
+user_auth_view = UserAuthorizationAPI.as_view('user-authorization')
 opplett_blueprint.add_url_rule(rule='/login', view_func=user_auth_view)
 
+# Register the user profile API
+user_profile_view = UserProfileAPI.as_view('user-profile')
+opplett_blueprint.add_url_rule(rule='/profile', view_func=user_profile_view)
 
-class ModelSubmission(MethodView):
-    """
-    View to take model submission requests and send off to get processed.
-    Takes GET requests to provide updates to the running job.
-    """
-    methods = ['GET', 'POST']
-
-    def get(self):
-        return jsonify({'echo': True})
-
-    def post(self):
-        data = request.get_json()
-        current_app.logger.info('Submitting model request: {}'.format(data))
-        self.submit_model_request(data=data)
-        return jsonify({'job-id': 23493802})
-
-    def submit_model_request(self, data):
-        """Submit json data of model architecture to process"""
-        redis = get_redis_con()
-        redis.set('job-id-123', data)
-        if not os.environ.get('DEBUG', False):
-            # TODO (Miles) Start submit the job to the Batch pipeline with corresponding job code.
-            pass
-        return True
-
-model_submission_view = ModelSubmission.as_view('model-submission-view')
+# Register the model submission API
+model_submission_view = ModelSubmissionAPI.as_view('model-submission')
 opplett_blueprint.add_url_rule(rule='/model-submission', view_func=model_submission_view)
 
 
