@@ -9,14 +9,15 @@ import DataDisplay from './components/data-display/data';
 
 class App extends React.Component {
     /*
-    * Main app component for the homepage.
+    * Main app component
     * */
     constructor (props){
         super(props);
         this.state = {
             authenticatedStatus: (document.getElementById('authenticated-status').getAttribute('content').toLowerCase() === 'true'),
-            authenticatedUser: document.getElementById('authenticated-user').getAttribute('content'),
-            messages: []  // List of object w/ keys "alertType" and "message" where alertType is bootstrap alert type. ie. alert-success
+            authenticatedUser: document.getElementById('authenticated-email').getAttribute('content'),
+            authenticatedToken: document.getElementById('authenticated-token').getAttribute('content'),
+            messages: [],  // List of object w/ keys "alertType" and "message" where alertType is bootstrap alert type. ie. alert-success
         };
     }
 

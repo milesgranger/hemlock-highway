@@ -1,8 +1,7 @@
 import os
 import bcrypt
 
-from datetime import datetime
-from flask import render_template
+from flask import render_template, session
 from flask.views import View
 
 class HomeView(View):
@@ -11,12 +10,12 @@ class HomeView(View):
     methods = ['GET']
 
     def dispatch_request(self):
+        email = session.get('credentials', {}).get('id_token', {}).get('email', 'anonymous')
         context = {
-            'authenticated_status': True,
-            'authenticated_user': 'milesg',
-            'authenticated_token': bcrypt.kdf(b'milesg',
-                                              salt=bytes('{}{}'.format(os.environ.get('SECRET_KEY'),
-                                                                       datetime.now().day).encode()),
+            'authenticated_status': False if not session.get('invalid', True) else True,
+            'authenticated_email': email,
+            'authenticated_token': bcrypt.kdf(email.encode('utf-8'),
+                                              salt=bytes('{}'.format(os.environ.get('SECRET_KEY')).encode()),
                                               rounds=50,
                                               desired_key_bytes=25
                                               )
