@@ -38,6 +38,9 @@ class UserModel(BaseModel):
     class Meta:
         db_table = 'ol_users'
 
+    def __init__(self, *args, **kwargs):
+        super(UserModel, self).__init__(*args, **kwargs)
+
     username = pw.CharField(max_length=255, primary_key=True, unique=True, null=False)
     email = pw.CharField(max_length=255, unique=True, null=False)
     name = pw.CharField(max_length=255, null=True)

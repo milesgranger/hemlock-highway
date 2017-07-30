@@ -35,7 +35,10 @@ class UserAuthorizationAPI(MethodView):
     methods = ['GET', 'POST']
 
     def __init__(self):
-        super(MethodView, self).__init__()
+        """
+        Register the OAuth endpoints.
+        """
+        super(UserAuthorizationAPI, self).__init__()
 
         # Google OAuth2 Client
         self.flow = client.OAuth2WebServerFlow(client_id=os.environ['OAUTH_GOOGLE_CLIENT_ID'],
@@ -56,16 +59,19 @@ class UserAuthorizationAPI(MethodView):
         if 'code' in request.args:
             auth_code = request.args.get('code')
             current_app.logger.info(session)
-            credentials = self.flow.step2_exchange(auth_code).to_json()  # Literally json, so here it is a string
+
+            # Credentials is an in-depth object with all sorts of information about the user
+            credentials = self.flow.step2_exchange(auth_code).to_json()  # Literally returns a string of JSON
             credentials = json.loads(credentials)                        # Convert literal json to dict
             session['credentials'] = credentials
 
+            # Grab user's email, photo url, and their given name
             user_email = credentials.get('id_token', {}).get('email', '')
             user_photo = credentials.get('id_token', {}).get('picture', '')
             user_given_name = credentials.get('id_token', {}).get('name', '')
 
+            # Log the info, and return to the font-end the success of logging in.
             current_app.logger.info('Email: {}, Picture: {}, Given Name: {}'.format(user_email, user_photo, user_given_name))
-
             return jsonify({'login_status': 'successful',
                             'credentials': credentials
                             })
