@@ -1,5 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import BrowserRouter from 'react-router-dom';
+
+// Local imports
 import JumboTronComponent from './components/home-page-components/welcome-jumbotron';
 import FileUpload from './components/file-upload';
 import ModelBuilder from './components/model-builder';
@@ -52,5 +55,6 @@ class App extends React.Component {
 
 document.addEventListener("DOMContentLoaded", function(event){
     const contentNode = document.getElementById('app');
+
     ReactDOM.render(<App/>, contentNode);
 });
