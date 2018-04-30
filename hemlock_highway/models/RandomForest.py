@@ -6,19 +6,24 @@ from hemlock_highway.models import AbcHemlockModel
 
 class HemlockRandomForestClassifier(RandomForestClassifier, AbcHemlockModel):
 
-    @property
-    def configurable_parameters(self):
+    @staticmethod
+    def configurable_parameters():
         return {
             'bootstrap': {
-                'type': bool,
+                'type': 'boolean',
                 'options': [True, False]
             },
             'class_weight': {
-                'type': str,
+                'type': 'string',
                 'options': ('balanced', None)
             },
             'n_estimators': {
-                'type': int,
-                'options': tuple(range(1, 100))
+                'type': 'integer',
+                'options': list(range(1, 100))
             }
         }
+
+
+__all__ = [
+    'HemlockRandomForestClassifier'
+]

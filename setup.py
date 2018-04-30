@@ -1,21 +1,23 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup
+from hemlock_highway import __version__
 
 
-_version = "0.0.1"
-
-_requirements = []
 with open('requirements.txt', 'r') as f:
-    _requirements = [line.strip() for line in f if not (line.startswith('#') or line.startswith('--'))]
+    install_requirements = [line.strip() for line in f if not (line.startswith('#') or line.startswith('--'))]
+
+with open('requirements_dev.txt', 'r') as f:
+    test_requirements = [line.strip() for line in f if not (line.startswith('#') or line.startswith('--'))]
 
 setup(
     name='hemlock-highway',
-    version=_version,
+    version=__version__,
     packages=['hemlock_highway'],
     author='Miles Granger',
     author_email='miles59923@gmail.com',
     description="Machine Learning Interface",
-    install_requires=_requirements,
+    install_requires=install_requirements,
+    tests_requires=test_requirements,
     test_suite='hemlock_highway.tests'
 )
