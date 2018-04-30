@@ -4,23 +4,53 @@
 #
 #    pip-compile --output-file requirements.txt requirements.in
 #
+asn1crypto==0.24.0        # via cryptography
 attrs==17.4.0             # via pytest
+aws-xray-sdk==0.95        # via moto
+boto3==1.7.10             # via moto
+boto==2.48.0              # via moto
+botocore==1.10.10         # via boto3, moto, s3transfer
+certifi==2018.4.16        # via requests
+cffi==1.11.5              # via cryptography
+chardet==3.0.4            # via requests
 click==6.7                # via flask, pip-tools
+cookies==2.2.1            # via moto, responses
+cryptography==2.2.2       # via moto
+docker-pycreds==0.2.3     # via docker
+docker==3.3.0             # via moto
+docutils==0.14            # via botocore
 first==2.0.1              # via pip-tools
 flask==1.0.1
+idna==2.6                 # via cryptography, requests
 itsdangerous==0.24        # via flask
-jinja2==2.10              # via flask
+jinja2==2.10              # via flask, moto
+jmespath==0.9.3           # via boto3, botocore
+jsondiff==1.1.1           # via moto
+jsonpickle==0.9.6         # via aws-xray-sdk
 markupsafe==1.0           # via jinja2
+mock==2.0.0               # via moto
 more-itertools==4.1.0     # via pytest
+moto==1.3.3
 numpy==1.14.3
 pandas==0.22.0
+pbr==4.0.2                # via mock
 pip-tools==2.0.2
 pluggy==0.6.0             # via pytest
 py==1.5.3                 # via pytest
+pyaml==17.12.1            # via moto
+pycparser==2.18           # via cffi
 pytest==3.5.1
-python-dateutil==2.7.2    # via pandas
-pytz==2018.4              # via pandas
+python-dateutil==2.6.1    # via botocore, moto, pandas
+pytz==2018.4              # via moto, pandas
+pyyaml==3.12              # via pyaml
+requests==2.18.4          # via aws-xray-sdk, docker, moto, responses
+responses==0.9.0          # via moto
+s3transfer==0.1.13        # via boto3
 scikit-learn==0.19.1
 scipy==1.0.1
-six==1.11.0               # via more-itertools, pip-tools, pytest, python-dateutil
-werkzeug==0.14.1          # via flask
+six==1.11.0               # via cryptography, docker, docker-pycreds, mock, more-itertools, moto, pip-tools, pytest, python-dateutil, responses, websocket-client
+urllib3==1.22             # via requests
+websocket-client==0.47.0  # via docker
+werkzeug==0.14.1          # via flask, moto
+wrapt==1.10.11            # via aws-xray-sdk
+xmltodict==0.11.0         # via moto
