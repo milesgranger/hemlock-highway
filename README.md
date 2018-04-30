@@ -1,2 +1,7 @@
-# hemlock-highway
-Development area for project: hemlock-highway
+# Hemlock Highway
+
+![Build Status](https://travis-ci.org/milesgranger/hemlock-highway.svg?branch=master)
+
+---
+
+Development area for project Hemlock Highway

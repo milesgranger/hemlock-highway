@@ -2,7 +2,7 @@
 .idea/
 *.env
 .idea/vcs.xml
-nvidia-docker-compose.yml
+.pytest_cache/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
