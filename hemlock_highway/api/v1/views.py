@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+import boto3
 from flask import Blueprint, jsonify, request, current_app, abort
 from hemlock_highway.models import AbcHemlockModel
 from hemlock_highway import models
@@ -33,7 +34,8 @@ def dump_model():
     if Model is None:
         abort(404)
     model = Model(**model_conf)  # type: AbcHemlockModel
-    model.dump(bucket='hemlock-highway-test', key='tests', name='model.pkl')
+    client = boto3.client('s3', region_name='us-east-1')
+    model.dump(s3_client=client, bucket='hemlock-highway-test', key='tests', name='model.pkl')
     return jsonify({'success': True})
 
 
