@@ -19,12 +19,11 @@ class HemlockModelsTestCase(unittest.TestCase):
         TODO: Test all models
         """
         from hemlock_highway.models import HemlockRandomForestClassifier
-        client = boto3.client('s3', region_name='us-east-1')
 
         clf1 = HemlockRandomForestClassifier()
-        clf1.dump(s3_client=client, bucket='hemlock-highway-test', key='tests', name='model.pkl')
+        clf1.dump(bucket='hemlock-highway-test', key='tests', name='model.pkl')
 
-        clf2 = HemlockRandomForestClassifier.load(s3_client=client, bucket='hemlock-highway-test', key='tests', name='model.pkl')
+        clf2 = HemlockRandomForestClassifier.load(bucket='hemlock-highway-test', key='tests', name='model.pkl')
 
         self.assertTrue(isinstance(clf2, HemlockRandomForestClassifier),
                         msg=f'Expected loaded model from s3 to be instand of HemlockRandomForestClassifier, instead ' \

@@ -34,8 +34,7 @@ def dump_model():
     if Model is None:
         abort(404)
     model = Model(**model_conf)  # type: AbcHemlockModel
-    client = boto3.client('s3', region_name='us-east-1')
-    model.dump(s3_client=client, bucket='hemlock-highway-test', key='tests', name='model.pkl')
+    model.dump(bucket='hemlock-highway-test', key='tests', name='model.pkl')
     return jsonify({'success': True})
 
 

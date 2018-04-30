@@ -8,6 +8,10 @@ import pickle
 
 class AbcHemlockModel:
 
+    def __new__(cls, *args, **kwargs):
+        cls.client = boto3.client('s3', region_name='us-east-1')
+        return super().__new__(cls)
+
     @staticmethod
     @abc.abstractstaticmethod
     def configurable_parameters():
@@ -20,13 +24,13 @@ class AbcHemlockModel:
         ...
 
     @abc.abstractmethod
-    def dump(self, s3_client, bucket: str, key: str, name: str):
+    def dump(self, bucket: str, key: str, name: str):
         """
         Dump a model to s3
         """
         model_out = zlib.compress(pickle.dumps(self))
-        s3_client.create_bucket(Bucket=bucket)
-        resp = s3_client.put_object(Bucket=bucket, Key=f'{key}/{name}', Body=model_out)
+        self.client.create_bucket(Bucket=bucket)
+        resp = self.client.put_object(Bucket=bucket, Key=f'{key}/{name}', Body=model_out)
         if resp['ResponseMetadata']['HTTPStatusCode'] == 200:
             return True
         else:
@@ -34,11 +38,11 @@ class AbcHemlockModel:
 
     @classmethod
     @abc.abstractmethod
-    def load(cls, s3_client, bucket: str, key: str, name: str):
+    def load(cls, bucket: str, key: str, name: str):
         """
         Load a model from S3
         """
-        model = s3_client.get_object(Bucket=bucket, Key=f'{key}/{name}')['Body'].read()
+        model = cls().client.get_object(Bucket=bucket, Key=f'{key}/{name}')['Body'].read()
         model = pickle.loads(zlib.decompress(model))
         return model
 
