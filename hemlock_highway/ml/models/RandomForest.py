@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from sklearn.ensemble import RandomForestClassifier
-from hemlock_highway.models import AbcHemlockModel
+from hemlock_highway.ml.models import AbcHemlockModel
 
 
 class HemlockRandomForestClassifier(RandomForestClassifier, AbcHemlockModel):

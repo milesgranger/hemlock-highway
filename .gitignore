@@ -3,6 +3,7 @@
 *.env
 .idea/vcs.xml
 .pytest_cache/
+.secrets.yml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

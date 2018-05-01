@@ -15,5 +15,5 @@ setup(
     author_email='miles59923@gmail.com',
     description="Machine Learning Interface",
     install_requires=install_requirements,
-    test_suite='hemlock_highway.tests'
+    test_suite='tests'
 )

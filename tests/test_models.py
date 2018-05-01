@@ -2,7 +2,6 @@
 
 import unittest
 import moto
-import boto3
 
 
 class HemlockModelsTestCase(unittest.TestCase):
@@ -18,7 +17,7 @@ class HemlockModelsTestCase(unittest.TestCase):
         Test the model can be dumped to s3 and loaded back
         TODO: Test all models
         """
-        from hemlock_highway.models import HemlockRandomForestClassifier
+        from hemlock_highway.ml.models import HemlockRandomForestClassifier
 
         clf1 = HemlockRandomForestClassifier()
         clf1.dump(bucket='hemlock-highway-test', key='tests', name='model.pkl')

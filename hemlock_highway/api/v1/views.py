@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import json
-import boto3
 from flask import Blueprint, jsonify, request, current_app, abort
-from hemlock_highway.models import AbcHemlockModel
-from hemlock_highway import models
+from hemlock_highway.ml.models import AbcHemlockModel
+from hemlock_highway.ml import models
 
 api_v1_blueprint = Blueprint(__name__, import_name='api_v1')
 
