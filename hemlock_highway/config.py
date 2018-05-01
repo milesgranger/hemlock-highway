@@ -26,7 +26,7 @@ class Config:
     SECRET_KEY  = os.getenv('SECRET_KEY')
 
     # OAuth
-    OAUTHLIB_INSECURE_TRANSPORT = bool(int(os.getenv('OAUTHLIB_INSECURE_TRANSPORT')))
+    OAUTHLIB_INSECURE_TRANSPORT = bool(int(os.getenv('OAUTHLIB_INSECURE_TRANSPORT', 0)))
     GOOGLE_CLIENT_ID            = os.getenv('GOOGLE_CLIENT_ID')
     GOOGLE_CLIENT_SECRET        = os.getenv('GOOGLE_CLIENT_SECRET')
 
