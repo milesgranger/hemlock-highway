@@ -1,12 +1,23 @@
 # -*- coding: utf-8 -*-
 
-from flask import redirect, url_for, current_app
+import os
+from flask import redirect, url_for, current_app, render_template
 from flask.blueprints import Blueprint
 from flask_dance.contrib.google import google
 from hemlock_highway.user_mgmt.user import User
 
-ui_blueprint = Blueprint(__name__, import_name='ui')
+MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 
+ui_blueprint = Blueprint(name='ui',
+                         import_name=__name__,
+                         template_folder=os.path.join(MODULE_PATH, 'templates'),
+                         static_folder=os.path.join(MODULE_PATH, 'static'),
+                         static_url_path='/static-ui')
+
+
+@ui_blueprint.route('/')
+def home_page():
+    return render_template('index.html')
 
 @ui_blueprint.route('/login-google')
 def login_google():

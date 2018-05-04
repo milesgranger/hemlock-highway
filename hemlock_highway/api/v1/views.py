@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 
 import json
-from flask import Blueprint, jsonify, request, current_app, abort
+import inspect
+from flask import Blueprint, jsonify, request, make_response, Response
 from hemlock_highway.ml.models import AbcHemlockModel
 from hemlock_highway.ml import models
+from typing import Union
 
-api_v1_blueprint = Blueprint(__name__, import_name='api_v1')
+api_v1_blueprint = Blueprint(name='api_v1', import_name=__name__)
 
 
-@api_v1_blueprint.route('/api/v1/available-models')
+@api_v1_blueprint.route('/api/v1/available-models', methods=['GET'])
 def available_models():
     """
     Return an array of strings with available models the client can use.
@@ -23,34 +25,47 @@ def available_models():
 @api_v1_blueprint.route('/api/v1/dump-model', methods=['POST'])
 def dump_model():
 
+    # To dump model, we need at least the name, optionally the config, otherwise default model init is used.
     model_name = request.form.get('model-name')
     model_conf = json.loads(request.form.get('model-config', '{}'))
-    if model_name is None:
-        return jsonify({'success': False, 'error': 'model name required'}), 403
 
-    current_app.logger.info(f'Model: {model_name} - Config: {model_conf}')
-    Model = getattr(models, model_name)
-    if Model is None:
-        abort(404)
-    model = Model(**model_conf)  # type: AbcHemlockModel
-    model.dump(bucket='hemlock-highway-test', key='tests', name='model.pkl')
-    return jsonify({'success': True})
+    Model = get_model_by_name(model_name)
+
+    if inspect.isclass(Model) and issubclass(Model, AbcHemlockModel):
+        # Initialize the model and dump it to the s3 bucket
+        # TODO: Parameterize the dumping location.
+        model = Model(**model_conf)  # type: AbcHemlockModel
+        model.dump(bucket='hemlock-highway-test', key='tests', name='model.pkl')
+        return jsonify({'success': True})
+    else:
+        return Model
 
 
 @api_v1_blueprint.route('/api/v1/model-parameters', methods=['GET'])
 def model_parameters():
 
     model_name = request.args.get('model-name')
+
+    Model = get_model_by_name(model_name)
+
+    if inspect.isclass(Model) and issubclass(Model, AbcHemlockModel):
+        return jsonify({'success': True, 'parameters': Model.configurable_parameters()})
+    else:
+        return Model
+
+
+def get_model_by_name(model_name: str) -> Union[AbcHemlockModel, Response]:
+
+    # If the name is None, we can't proceed
     if model_name is None:
-        abort(403)
+        return make_response(jsonify({'success': False, 'error': 'model name required'}), 400)
 
-    Model = getattr(models, model_name)  # type: AbcHemlockModel
-    if Model is None:
-        abort(403)
-    return jsonify({'success': True, 'parameters': Model.configurable_parameters()})
+    # Attempt to load model, otherwise it's a model name we don't know
+    try:
+        Model = getattr(models, model_name)
+    except AttributeError:
+        return make_response(jsonify({'success': False, 'error': f'model ({model_name}) not found'}), 404)
 
-
-
-
+    return Model
 
 

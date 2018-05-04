@@ -12,4 +12,5 @@ virtualenv -p $(which python3.6) venv
 source venv/bin/activate
 pip install --upgrade pip wheel setuptools pip-tools
 pip-sync
+python -m hemlock_highway
 ```
