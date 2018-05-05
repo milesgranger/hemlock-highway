@@ -12,7 +12,6 @@ from .utils import fake_data_on_s3
 class DataManagerTestCase(unittest.TestCase):
 
     def setUp(self):
-
         # Test data directory
         self.DATA_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data')
 
@@ -76,6 +75,23 @@ class DataManagerTestCase(unittest.TestCase):
         dm.load(n_bytes=1024)
         size = sys.getsizeof(dm.X)
         self.assertLess(size, 1512, msg=f'Size of data is > 1.5mb; it is {size} bytes')
+
+    @fake_data_on_s3(local_dataset='iris.csv', bucket='test', key='data/basic.csv')
+    def test_pickling(self):
+        import pickle
+        from hemlock_highway.data_manager import DataManager
+        dm1 = DataManager(data_endpoint='test/data/basic.csv', target_column='species')
+        dm1.load()
+        self.assertTrue(dm1.X.shape[0] > 0)     # Should be data in X
+        with self.assertWarns(UserWarning):     # Should warn data is being dropped
+            out = pickle.dumps(dm1)
+        dm2 = pickle.loads(out)
+        self.assertTrue(dm2.X.shape[0] == 0,    # Loaded object should be empty of data
+                        msg=f'After pickling and loading, DataManager had data in X: {dm2.X.shape}')
+
+        # Loaded object should have same attributes
+        self.assertTrue(dm2.data_endpoint == dm1.data_endpoint,
+                        msg='Original DataManager and loaded pickled version does not have same attributes!')
 
 
 if __name__ == '__main__':

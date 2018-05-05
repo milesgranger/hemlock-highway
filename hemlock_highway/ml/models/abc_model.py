@@ -6,9 +6,13 @@ import zlib
 import pickle
 
 from hemlock_highway.settings import PROJECT_CONFIG
+from hemlock_highway.data_manager import DataManager
 
 
 class AbcHemlockModel:
+
+    # Each model should have a DataManager to manage the handling of the IO/parsing of data for the model.
+    data_manager = DataManager(None, None)
 
     def __new__(cls, *args, **kwargs):
         cls.s3_client = boto3.client('s3', region_name=PROJECT_CONFIG.AWS_REGION)
