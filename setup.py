@@ -15,5 +15,7 @@ setup(
     author_email='miles59923@gmail.com',
     description="Machine Learning Interface",
     install_requires=install_requirements,
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest'],
     test_suite='tests'
 )
