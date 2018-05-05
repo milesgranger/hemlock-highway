@@ -2,7 +2,7 @@
 
 import unittest
 from hemlock_highway.server import app
-from tests.utils import fake_google_authenticated_user
+from tests.test_server.utils import fake_google_authenticated_user
 
 
 class UserMgmtTestCase(unittest.TestCase):

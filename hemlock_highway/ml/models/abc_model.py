@@ -5,11 +5,13 @@ import boto3
 import zlib
 import pickle
 
+from hemlock_highway.settings import PROJECT_CONFIG
+
 
 class AbcHemlockModel:
 
     def __new__(cls, *args, **kwargs):
-        cls.client = boto3.client('s3', region_name='us-east-1')
+        cls.s3_client = boto3.client('s3', region_name=PROJECT_CONFIG.AWS_REGION)
         return super().__new__(cls)
 
     @staticmethod
@@ -29,8 +31,8 @@ class AbcHemlockModel:
         Dump a model to s3
         """
         model_out = zlib.compress(pickle.dumps(self))
-        self.client.create_bucket(Bucket=bucket)
-        resp = self.client.put_object(Bucket=bucket, Key=f'{key}/{name}', Body=model_out)
+        self.s3_client.create_bucket(Bucket=bucket)
+        resp = self.s3_client.put_object(Bucket=bucket, Key=f'{key}/{name}', Body=model_out)
         if resp['ResponseMetadata']['HTTPStatusCode'] == 200:
             return True
         else:
@@ -42,7 +44,7 @@ class AbcHemlockModel:
         """
         Load a model from S3
         """
-        model = cls().client.get_object(Bucket=bucket, Key=f'{key}/{name}')['Body'].read()
+        model = cls().s3_client.get_object(Bucket=bucket, Key=f'{key}/{name}')['Body'].read()
         model = pickle.loads(zlib.decompress(model))
         return model
 

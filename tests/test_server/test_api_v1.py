@@ -15,12 +15,19 @@ class APIv1TestCase(unittest.TestCase):
         self.app = app.test_client()
 
     def test_sanity(self):
-        resp = self.app.get('/echo?word=hello')
-        self.assertTrue(b'hello' in resp.data)
+        resp = self.app.get('/health-check')
+        self.assertTrue(resp.status_code == 200)
 
     def test_available_models(self):
         resp = self.app.get('/api/v1/available-models')
-        self.assertTrue(b'HemlockRandomForestClassifier' in resp.data)
+        models = json.loads(resp.data)
+
+        # Should return a list of strings, each the name of some valid model
+        self.assertTrue(isinstance(models, list))
+        self.assertTrue(isinstance(models[-1], str))
+
+        # Verify at least this known implemented model is in there.
+        self.assertTrue('HemlockRandomForestClassifier' in models)
 
     @moto.mock_s3
     def test_server_model_dump_load(self):

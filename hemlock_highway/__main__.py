@@ -9,7 +9,7 @@ if PATH not in sys.path:
     sys.path.append(PATH)
 
 from hemlock_highway.server import app
-from hemlock_highway.config import Config
+from hemlock_highway.server.config import Config
 
 config = Config()
 

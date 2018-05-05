@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask_dance.contrib.google import make_google_blueprint
-from hemlock_highway.config import Config
+from hemlock_highway.server.config import Config
 
 config = Config()
 

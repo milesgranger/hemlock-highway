@@ -10,8 +10,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.sqlite
-*.gz
-*.csv
 *.pkl
 output.txt
 
@@ -101,12 +99,3 @@ ENV/
 
 # Rope project settings
 .ropeproject
-/raw_data_persist.sqlite
-/imgs/
-/node_modules/
-!/static/js/bundle.js
-/static/js/bundle.js
-/opplett/static/js/bundle.js
-opplett/static/js/
-!/opplett/static/js/
-/opplett/data/data.csv

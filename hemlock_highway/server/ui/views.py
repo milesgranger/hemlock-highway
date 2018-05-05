@@ -4,7 +4,7 @@ import os
 from flask import redirect, url_for, current_app, render_template
 from flask.blueprints import Blueprint
 from flask_dance.contrib.google import google
-from hemlock_highway.user_mgmt.user import User
+from hemlock_highway.server.user_mgmt.user import User
 
 MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 
