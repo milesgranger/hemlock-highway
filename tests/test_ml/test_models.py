@@ -20,9 +20,9 @@ class HemlockModelsTestCase(unittest.TestCase):
         from hemlock_highway.ml.models import HemlockRandomForestClassifier
 
         clf1 = HemlockRandomForestClassifier()
-        clf1.dump(bucket='hemlock-highway-test', key='tests', name='model.pkl')
+        clf1.dump(bucket='hemlock-highway-test', key='tests/model.pkl')
 
-        clf2 = HemlockRandomForestClassifier.load(bucket='hemlock-highway-test', key='tests', name='model.pkl')
+        clf2 = HemlockRandomForestClassifier.load(bucket='hemlock-highway-test', key='tests/model.pkl')
 
         self.assertTrue(isinstance(clf2, HemlockRandomForestClassifier),
                         msg=f'Expected loaded model from s3 to be instand of HemlockRandomForestClassifier, instead ' \

@@ -38,6 +38,7 @@ class DataManager:
         target_column: str  - After loading the dataset, this is designated as the target column
         read_args: dict     - Any additional pandas.read_csv() kwargs
         """
+
         self.data_endpoint = data_endpoint
         self.target_column = target_column
         self.read_args = read_args
@@ -68,6 +69,22 @@ class DataManager:
             HttpMethod='PUT' if action == 'PUT' else 'GET'
         )
         return url
+
+    @classmethod
+    def list_s3_datasets(cls, bucket: str, dir: str) -> list:
+        """
+        List objects in a specific bucket and directory
+
+        Returns
+        -------
+        List of dictionaries with keys of 'key' and 'size_bytes'
+        """
+        response = cls.s3_client.list_objects_v2(
+            Bucket=bucket,
+            MaxKeys=1000,
+            Prefix=dir
+        )
+        return [{'key': v['Key'], 'size_bytes': v['Size']} for v in response['Contents']]
 
     @staticmethod
     def detect_encoding(data: bytes) -> str:

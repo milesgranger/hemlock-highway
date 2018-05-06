@@ -35,7 +35,7 @@ def dump_model():
         # Initialize the model and dump it to the s3 bucket
         # TODO: Parameterize the dumping location.
         model = Model(**model_conf)  # type: AbcHemlockModel
-        model.dump(bucket='hemlock-highway-test', key='tests', name='model.pkl')
+        model.dump(bucket='hemlock-highway-test', key='tests/model.pkl')
         return jsonify({'success': True})
     else:
         return Model
