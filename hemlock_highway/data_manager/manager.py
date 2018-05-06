@@ -79,7 +79,8 @@ class DataManager:
         -------
         List of dictionaries with keys of 'key' and 'size_bytes'
         """
-        response = cls.s3_client.list_objects_v2(
+        s3_client = boto3.client('s3', region_name=PROJECT_CONFIG.AWS_REGION)
+        response = s3_client.list_objects_v2(
             Bucket=bucket,
             MaxKeys=1000,
             Prefix=dir

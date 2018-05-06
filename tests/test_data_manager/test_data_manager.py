@@ -104,7 +104,6 @@ class DataManagerTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             DataManager.generate_presigned_s3_url(bucket='test', key='something.csv', action='FAIL')
 
-    @moto.mock_s3
     @fake_data_on_s3(local_dataset='iris.csv', bucket='test', key='data/basic.csv')
     def test_list_objects(self):
         """Test listing of objects on s3"""
