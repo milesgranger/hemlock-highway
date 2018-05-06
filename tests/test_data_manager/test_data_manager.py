@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import os
+import pickle
 import sys
 import unittest
-import moto
 
 import botocore.exceptions
+import moto
+
+from hemlock_highway.data_manager import DataManager
 from .utils import fake_data_on_s3
 
 
@@ -20,7 +23,6 @@ class DataManagerTestCase(unittest.TestCase):
         """
         Test the basic loading of a dataset.
         """
-        from hemlock_highway.data_manager import DataManager
         dm = DataManager(data_endpoint='test/data/basic.csv', target_column='species')
         self.assertFalse(dm._loaded, msg='DataManger should not load data on initialization! Reports it is loaded!')
         dm.load()
@@ -32,7 +34,6 @@ class DataManagerTestCase(unittest.TestCase):
         """
         Test IOError when trying to load a non-existant dataset.
         """
-        from hemlock_highway.data_manager import DataManager
         dm = DataManager(data_endpoint='test/data/basic.csv', target_column='species')
 
         # Should raise an exception when trying to load a dataset that doesn't exist.
@@ -43,7 +44,6 @@ class DataManagerTestCase(unittest.TestCase):
         """
         Ensure dataloader can load a dataset via http
         """
-        from hemlock_highway.data_manager import DataManager
         dm = DataManager(
             data_endpoint='https://raw.githubusercontent.com/uiuc-cse/data-fa14/gh-pages/data/iris.csv',
             target_column='species'
@@ -57,7 +57,6 @@ class DataManagerTestCase(unittest.TestCase):
         """
         Ensure dataloader can load just the for n_bytes from s3
         """
-        from hemlock_highway.data_manager import DataManager
         dm = DataManager(data_endpoint='test/data/basic.csv', target_column='species')
         dm.load(n_bytes=1024)
         size = sys.getsizeof(dm.X)
@@ -67,7 +66,6 @@ class DataManagerTestCase(unittest.TestCase):
         """
         Ensure dataloader can load just the for n_bytes from s3
         """
-        from hemlock_highway.data_manager import DataManager
         dm = DataManager(
             data_endpoint='https://raw.githubusercontent.com/uiuc-cse/data-fa14/gh-pages/data/iris.csv',
             target_column='species'
@@ -78,8 +76,7 @@ class DataManagerTestCase(unittest.TestCase):
 
     @fake_data_on_s3(local_dataset='iris.csv', bucket='test', key='data/basic.csv')
     def test_pickling(self):
-        import pickle
-        from hemlock_highway.data_manager import DataManager
+        """Data manager should pickle, and drop any data held within it before pickling"""
         dm1 = DataManager(data_endpoint='test/data/basic.csv', target_column='species')
         dm1.load()
         self.assertTrue(dm1.X.shape[0] > 0)     # Should be data in X
@@ -96,14 +93,29 @@ class DataManagerTestCase(unittest.TestCase):
     @moto.mock_s3
     def test_presigned_url(self):
         """Test fetching a presigned url to upload a dataset"""
-        from hemlock_highway.data_manager import DataManager
-
         # Test we can generate presigned urls for GET and POST requests
         for action in ['GET', 'POST']:
             url = DataManager.generate_presigned_s3_url(bucket='hemlock-highway-test',
                                                         key='customer1/data.csv',
                                                         action=action)
             self.assertTrue(isinstance(url, str) and url.startswith('https://') and 'hemlock-highway-test' in url)
+
+        # Raise ValueError on unavailable action
+        with self.assertRaises(ValueError):
+            DataManager.generate_presigned_s3_url(bucket='test', key='something.csv', action='FAIL')
+
+    @moto.mock_s3
+    @fake_data_on_s3(local_dataset='iris.csv', bucket='test', key='data/basic.csv')
+    def test_list_objects(self):
+        """Test listing of objects on s3"""
+        resp = DataManager.list_s3_datasets(bucket='test', dir='data/')
+        self.assertIsInstance(resp, list)
+        self.assertTrue(any((v['key'] == 'data/basic.csv' for v in resp)))
+
+        # Just for sanity, load the given key for this 'test' bucket
+        data = DataManager(data_endpoint=f'test/{resp[0]["key"]}', target_column='species')
+        data.load()
+        self.assertGreater(data.X.shape[0], 0)
 
 
 if __name__ == '__main__':
