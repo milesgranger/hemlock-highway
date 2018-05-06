@@ -93,6 +93,18 @@ class DataManagerTestCase(unittest.TestCase):
         self.assertTrue(dm2.data_endpoint == dm1.data_endpoint,
                         msg='Original DataManager and loaded pickled version does not have same attributes!')
 
+    @moto.mock_s3
+    def test_presigned_url(self):
+        """Test fetching a presigned url to upload a dataset"""
+        from hemlock_highway.data_manager import DataManager
+
+        # Test we can generate presigned urls for GET and POST requests
+        for action in ['GET', 'POST']:
+            url = DataManager.generate_presigned_s3_url(bucket='hemlock-highway-test',
+                                                        key='customer1/data.csv',
+                                                        action=action)
+            self.assertTrue(isinstance(url, str) and url.startswith('https://') and 'hemlock-highway-test' in url)
+
 
 if __name__ == '__main__':
     unittest.main()

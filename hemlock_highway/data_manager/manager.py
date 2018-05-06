@@ -49,6 +49,26 @@ class DataManager:
             self.X, self.y = pd.DataFrame(), pd.Series()
         return self.__dict__
 
+    @classmethod
+    def generate_presigned_s3_url(cls, bucket: str, key: str, action='PUT') -> str:
+        """
+        Generate a presigned url to upload a dataset to
+        """
+
+        # Ensure we generate either get or post request url
+        action = 'PUT' if action.upper() == 'POST' else action.upper()  # convert a 'POST' to 'PUT'
+        if action not in ['PUT', 'GET']:
+            raise ValueError(f'Can only generate a url for one of: "GET", "PUT"')
+
+        # Generate the presigned url
+        url = cls.s3_client.generate_presigned_url(
+            'put_object' if action == 'PUT' else 'get_object',
+            Params={'Bucket': bucket, 'Key': key},
+            ExpiresIn=3600,
+            HttpMethod='PUT' if action == 'PUT' else 'GET'
+        )
+        return url
+
     @staticmethod
     def detect_encoding(data: bytes) -> str:
         """Given a byte string, return expected encoding"""
