@@ -9,7 +9,7 @@ from hemlock_highway.settings import PROJECT_CONFIG
 from hemlock_highway.data_manager import DataManager
 
 
-class AbcHemlockModel:
+class HemlockModelBase:
 
     # Each model should have a DataManager to manage the handling of the IO/parsing of data for the model.
     data_manager = DataManager('', '')
@@ -54,5 +54,5 @@ class AbcHemlockModel:
 
 
 __all__ = [
-    'AbcHemlockModel'
+    'HemlockModelBase'
 ]

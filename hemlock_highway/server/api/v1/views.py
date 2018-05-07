@@ -3,7 +3,7 @@
 import json
 import inspect
 from flask import Blueprint, jsonify, request, make_response, Response
-from hemlock_highway.ml.models import AbcHemlockModel
+from hemlock_highway.ml.models import HemlockModelBase
 from hemlock_highway.ml import models
 from typing import Union
 
@@ -17,7 +17,7 @@ def available_models():
     """
     _models = [
         model for model in filter(lambda m: m.startswith('Hemlock'), dir(models))
-        if issubclass(getattr(models, model), AbcHemlockModel)
+        if issubclass(getattr(models, model), HemlockModelBase)
     ]
     return jsonify(_models)
 
@@ -31,10 +31,10 @@ def dump_model():
 
     Model = get_model_by_name(model_name)
 
-    if inspect.isclass(Model) and issubclass(Model, AbcHemlockModel):
+    if inspect.isclass(Model) and issubclass(Model, HemlockModelBase):
         # Initialize the model and dump it to the s3 bucket
         # TODO: Parameterize the dumping location.
-        model = Model(**model_conf)  # type: AbcHemlockModel
+        model = Model(**model_conf)  # type: HemlockModelBase
         model.dump(bucket='hemlock-highway-test', key='tests/model.pkl')
         return jsonify({'success': True})
     else:
@@ -48,13 +48,13 @@ def model_parameters():
 
     Model = get_model_by_name(model_name)
 
-    if inspect.isclass(Model) and issubclass(Model, AbcHemlockModel):
+    if inspect.isclass(Model) and issubclass(Model, HemlockModelBase):
         return jsonify({'success': True, 'parameters': Model.configurable_parameters()})
     else:
         return Model
 
 
-def get_model_by_name(model_name: str) -> Union[AbcHemlockModel, Response]:
+def get_model_by_name(model_name: str) -> Union[HemlockModelBase, Response]:
 
     # If the name is None, we can't proceed
     if model_name is None:

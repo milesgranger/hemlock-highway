@@ -22,6 +22,7 @@ docker-pycreds==0.2.3     # via docker
 docker==3.3.0             # via moto
 docopt==0.6.2             # via coveralls
 docutils==0.14            # via botocore
+fakeredis==0.10.2
 first==2.0.1              # via pip-tools
 flask-dance==0.14.0
 flask==1.0.1
@@ -49,6 +50,7 @@ pytest==3.5.1
 python-dateutil==2.6.1    # via botocore, moto, pandas
 pytz==2018.4              # via moto, pandas
 pyyaml==3.12              # via pyaml
+redis==2.10.6
 requests-oauthlib==0.8.0  # via flask-dance
 requests==2.18.4          # via aws-xray-sdk, coveralls, docker, flask-dance, moto, requests-oauthlib, responses
 responses==0.9.0          # via moto

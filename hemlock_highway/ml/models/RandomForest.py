@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from sklearn.ensemble import RandomForestClassifier
-from hemlock_highway.ml.models import AbcHemlockModel
+from hemlock_highway.ml.models import HemlockModelBase
 
 
-class HemlockRandomForestClassifier(RandomForestClassifier, AbcHemlockModel):
+class HemlockRandomForestClassifier(RandomForestClassifier, HemlockModelBase):
 
     @staticmethod
     def configurable_parameters():

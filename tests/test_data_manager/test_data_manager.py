@@ -9,7 +9,7 @@ import botocore.exceptions
 import moto
 
 from hemlock_highway.data_manager import DataManager
-from .utils import fake_data_on_s3
+from tests.utils import fake_data_on_s3
 
 
 class DataManagerTestCase(unittest.TestCase):

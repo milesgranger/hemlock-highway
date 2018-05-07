@@ -126,6 +126,7 @@ class DataManager:
         # Separate X and y
         self.y = self.X[self.target_column]
         self.X = self.X[[col for col in self.X.columns if col != self.target_column]]
+        return self.X, self.y
 
     def _load_from_http(self, n_bytes: int=None) -> io.BytesIO:
         # Stream from source writing by chunk size of 1mb or n_bytes
