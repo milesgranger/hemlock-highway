@@ -27,6 +27,7 @@ fakeredis==0.10.2
 first==2.0.1              # via pip-tools
 flask-dance==0.14.0
 flask-login==0.4.1
+flask-sqlalchemy==2.3.2
 flask==1.0.1
 idna==2.6                 # via cryptography, requests
 itsdangerous==0.24        # via flask
