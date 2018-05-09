@@ -4,7 +4,7 @@ import os
 from flask import redirect, url_for, current_app, render_template
 from flask.blueprints import Blueprint
 from flask_dance.contrib.google import google
-from hemlock_highway.server.user_mgmt.user import User
+from flask_login import login_required, current_user
 
 MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -19,12 +19,9 @@ ui_blueprint = Blueprint(name='ui',
 def home_page():
     return render_template('index.html')
 
-@ui_blueprint.route('/login-google')
-def login_google():
 
-    if not google.authorized:
-        current_app.logger.info(f'User not authorized! {google}')
-        return redirect(url_for('google.login'))
-    else:
-        user = User.from_flask_dance_session(google)
-        return f'You are {user.name} on Google.'
+
+@ui_blueprint.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html', user=current_user.username)

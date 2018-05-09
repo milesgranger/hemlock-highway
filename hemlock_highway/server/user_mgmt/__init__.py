@@ -1,4 +1,3 @@
 # -*- coding: utf-8 -*-
 
-from .auth import google_auth_blueprint
-from .user import User
+from .auth import google_auth_blueprint, user_mgmt_blueprint

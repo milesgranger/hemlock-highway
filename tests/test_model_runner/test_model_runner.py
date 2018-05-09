@@ -3,13 +3,15 @@
 import json
 import unittest
 import responses
+import moto
 from sklearn.exceptions import NotFittedError
+
 from hemlock_highway.data_manager import DataManager
 from hemlock_highway.model_runner import app, ModelRunner
 from hemlock_highway.ml.models import HemlockRandomForestClassifier, HemlockModelBase
-import moto
 
 from tests.utils import fake_data_on_s3
+
 
 class ModelRunnerTestCase(unittest.TestCase):
 
@@ -51,7 +53,7 @@ class ModelRunnerTestCase(unittest.TestCase):
         # Model isn't fitted, so it shouldn't be able to predict anything
         with self.assertRaises(NotFittedError, msg="Model isn't fitted, so it shouldn't be able to predict anything!"):
             runner.predict()
-            
+
         # Fit & predict, ensuring that the orignal, runner, and predicted data sizes match
         runner.fit()
         data = runner.predict()

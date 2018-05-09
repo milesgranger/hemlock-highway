@@ -1,14 +1,20 @@
 # -*- coding: utf-8 -*-
 
+from flask_sqlalchemy import SQLAlchemy
 from flask_dance.contrib.google import google
+from flask_login import UserMixin
 
 
-class User:
+db = SQLAlchemy()
 
-    name = None
-    picture = None
-    gender = None
-    locale = None
+
+class UserProto(db.Model, UserMixin):
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(256), unique=False, nullable=False)
+    picture = db.Column(db.String(1000), nullable=True)
+    gender = db.Column(db.String(1), nullable=True)
+    locale = db.Column(db.String(10), nullable=True)
 
     def __init__(self, name, picture, gender, locale):
         self.name = name
@@ -39,3 +45,4 @@ class User:
                    gender=resp.get('gender'),
                    locale=resp.get('locale')
                    )
+

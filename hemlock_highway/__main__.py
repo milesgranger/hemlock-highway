@@ -12,6 +12,7 @@ from hemlock_highway.server import app
 from hemlock_highway.server.config import Config
 
 config = Config()
+app.config.from_object(config)
 
 if __name__ == '__main__':
     app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG, threaded=-config.DEBUG)
