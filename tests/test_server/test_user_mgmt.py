@@ -11,14 +11,13 @@ class UserMgmtTestCase(unittest.TestCase):
         app.testing = True
         self.app = app.test_client()
 
-    @fake_google_authenticated_user(username='test-user')
-    def test_google_login(self):
+    def test_unauthenticated_dashboard(self):
         """
-        Test an authenticated user trying to login
+        Test an unauthenticated user attempting to access dashboard
         """
-        response = self.app.get('/login-google')
+        response = self.app.get('/dashboard')
         self.assertTrue(
-            b'test-user' in response.data, msg=f'Expected response to have "test-user", found {response.data}'
+            b'Unauthorized' in response.data, msg=f'Expected unauthorized'
         )
 
 
