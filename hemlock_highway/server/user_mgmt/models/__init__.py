@@ -1,1 +1,1 @@
-from .user import db
+from .user import db, User, OAuth

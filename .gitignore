@@ -3,7 +3,7 @@
 *.env
 .idea/vcs.xml
 .pytest_cache/
-.secrets.yml
+.dev-env.yml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -99,3 +99,4 @@ ENV/
 
 # Rope project settings
 .ropeproject
+*.db

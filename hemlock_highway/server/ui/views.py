@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os
-from flask import redirect, url_for, current_app, render_template
+from flask import render_template
 from flask.blueprints import Blueprint
-from flask_dance.contrib.google import google
 from flask_login import login_required, current_user
 
 MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -16,7 +15,7 @@ ui_blueprint = Blueprint(name='ui',
 
 
 @ui_blueprint.route('/')
-def home_page():
+def index():
     return render_template('index.html')
 
 

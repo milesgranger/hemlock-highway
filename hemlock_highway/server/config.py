@@ -1,22 +1,15 @@
 # -*- coding: utf-8 -*-
 
 import os
-import yaml
-
+from hemlock_highway.settings import PROJECT_CONFIG
 
 # The root directory of this repo.
 ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 
-# check if there is a .secrets.yml file; for local development only.
-if os.path.isfile(os.path.join(ROOT_DIR, '.secrets.yml')):
-    with open(os.path.join(ROOT_DIR, '.secrets.yml')) as f:
-        environment = yaml.load(f)
 
-    # Set all the environment variables from .secrets.yml
-    for key, value in environment.items():
-        os.environ[key] = str(value).strip()
 
-    print(os.environ)
+
+
 
 
 class Config:
@@ -27,7 +20,9 @@ class Config:
     PORT        = int(os.getenv('PORT', 5555))
     SECRET_KEY  = os.getenv('SECRET_KEY', 'super_secret')
 
-    SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI', "sqlite://")
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+        'SQLALCHEMY_DATABASE_URI', f"sqlite:///{PROJECT_CONFIG.REPO_ROOT_DIR}/dev-database.db"
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # OAuth
