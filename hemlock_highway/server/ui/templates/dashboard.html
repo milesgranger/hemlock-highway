@@ -3,23 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
 </head>
 <body>
-    <h3>
-        Welcome {{ current_user.name or 'Unknown' }} to your dashboard!
-    </h3>
 
-    <h4>Your models:</h4>
-    <ul>
-        {% for model in models %}
-            <li>
-                <p>
-                    Model name: {{ model.name }}
-                    Trained: {{ model.trained }}
-                    Size: {{ model.size_bytes }}
-                </p>
-            </li>
-        {% endfor %}
-    </ul>
+    <div class="container">
+
+        <h3>
+            Welcome {{ current_user.name or 'Unknown' }} to your dashboard!
+        </h3>
+
+        <h4>Your models:</h4>
+        {% if models %}
+            <table>
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Trained?</th>
+                    <th>Size (MB)</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for model in models %}
+                    <tr>
+                        <td>{{ model.name }}</td>
+                        <td>{{ model.trained }}</td>
+                        <td>{{ (model.size_bytes / 1024) | round(1) }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+
+    </div>
 </body>
 </html>

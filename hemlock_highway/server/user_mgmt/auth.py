@@ -17,7 +17,8 @@ config = Config()
 # OAuth blueprints, basically provides endpoint for logging in.
 google_auth_blueprint = make_google_blueprint(client_id=config.GOOGLE_OAUTH_CLIENT_ID,
                                               client_secret=config.GOOGLE_OAUTH_CLIENT_SECRET,
-                                              scope=['profile', 'email']
+                                              scope=['profile', 'email'],
+                                              redirect_to='ui.dashboard'
                                               )
 
 # OAuth blueprints have a backend to store the token of the current user, allowing to logout and use with Flask-Login

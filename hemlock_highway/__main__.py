@@ -8,8 +8,8 @@ repo_root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 
 # Remove dev db if exists
 db_file = os.path.join(repo_root, 'dev-database.db')
-if os.path.isfile(db_file):
-    os.remove(db_file)
+#if os.path.isfile(db_file):
+#    os.remove(db_file)
 
 # check if there is a .secrets.yml file; for local development only.
 _path = os.path.join(repo_root, '.dev-env.yml')
